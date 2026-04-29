@@ -2,391 +2,525 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PV Defect Screening Database</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Defect-Tolerant PV Materials</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --tol:#1D9E75;--int:#D85A30;--fai:#888780;
-  --bg1:#ffffff;--bg2:#f5f4ef;--bdr:rgba(0,0,0,0.12);
-  --txt:#1a1a18;--txt2:#6b6b67;--txt3:#9b9b97;
-  --blue:#185FA5;--blue-bg:#E6F1FB;
-  --r-md:8px;--r-lg:12px;
+  --ink:#1a1a16; --ink2:#4a4a42; --ink3:#8a8a80; --ink4:#b8b8ae;
+  --bg:#f7f5f0; --bg2:#edeae2; --bg3:#e2dfd6; --white:#fff;
+  --green:#1a8c68; --green2:#e6f4ee; --green3:#0f6b50;
+  --gold:#b8963c; --gold2:#f0d88c; --gold3:#7a6228;
+  --blue:#2655a8; --blue2:#e8edf8;
+  --bdr:rgba(0,0,0,0.09); --bdr2:rgba(0,0,0,0.05);
+  --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 14px rgba(0,0,0,0.05);
+  --r:10px; --r-sm:6px;
 }
-@media(prefers-color-scheme:dark){
-  :root{--bg1:#1e1e1c;--bg2:#2a2a28;--bdr:rgba(255,255,255,0.12);
-         --txt:#e8e6de;--txt2:#9b9b97;--txt3:#6b6b67;
-         --blue-bg:#0c3a5c;}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* ─ HEADER ─ */
+.hdr{
+  background:var(--white);
+  border-bottom:0.5px solid var(--bdr);
+  padding:52px 0 44px; position:relative; overflow:hidden;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:var(--bg2);color:var(--txt);font-size:14px;line-height:1.5}
-.wrap{max-width:1100px;margin:0 auto;padding:24px 16px}
-h1{font-size:20px;font-weight:500;margin-bottom:4px}
-.sub{font-size:13px;color:var(--txt2);margin-bottom:20px}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.stat{background:var(--bg1);border-radius:var(--r-md);padding:12px 14px;border:0.5px solid var(--bdr)}
-.stat-lbl{font-size:11px;color:var(--txt2);margin-bottom:3px}
-.stat-val{font-size:22px;font-weight:500}
-.green{color:var(--tol)}.red{color:var(--int)}.amber{color:#BA7517}
-.tabs{display:flex;border-bottom:0.5px solid var(--bdr);margin-bottom:16px}
-.tab{padding:7px 16px;cursor:pointer;color:var(--txt2);font-size:13px;
-      border-bottom:2px solid transparent;transition:.15s}
-.tab.on{color:var(--txt);border-bottom-color:var(--txt)}
-.panel{background:var(--bg1);border:0.5px solid var(--bdr);
-        border-radius:var(--r-lg);padding:16px 18px;margin-bottom:16px}
-.ctrls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.pill{font-size:12px;padding:3px 12px;border-radius:20px;
-       border:0.5px solid var(--bdr);background:transparent;cursor:pointer;color:var(--txt2)}
-.pill.on{background:var(--txt);color:var(--bg1);border-color:var(--txt)}
-select,input[type=text]{font-size:12px;padding:4px 8px;border:0.5px solid var(--bdr);
-  border-radius:6px;background:var(--bg2);color:var(--txt);outline:none}
-.grid2{display:grid;grid-template-columns:1fr 320px;gap:16px}
-.tbl-wrap{overflow:auto;max-height:320px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{font-size:11px;font-weight:500;color:var(--txt2);text-align:left;padding:5px 8px;
-    border-bottom:0.5px solid var(--bdr);position:sticky;top:0;background:var(--bg1);
-    z-index:1;cursor:pointer;user-select:none;white-space:nowrap}
-th:hover{color:var(--txt)}
-td{padding:5px 8px;border-bottom:0.5px solid var(--bdr)}
-tr:hover td{background:var(--bg2);cursor:pointer}
-tr.sel td{background:rgba(29,158,117,0.1)}
-.badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
-.bt{background:#E1F5EE;color:#0F6E56}.bi{background:#FAECE7;color:#993C1D}
-.bf{background:#F1EFE8;color:#5F5E5A}.bu{background:#F1EFE8;color:#5F5E5A}
-.detail{background:var(--bg2);border-radius:var(--r-md);padding:14px;min-height:300px}
-.d-title{font-size:15px;font-weight:500;margin-bottom:2px}
-.d-sub{font-size:12px;color:var(--txt2);margin-bottom:10px}
-.kv{display:flex;justify-content:space-between;padding:5px 0;
-     border-bottom:0.5px solid var(--bdr);font-size:12px}
+.hdr::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse at 5% 100%, rgba(26,140,104,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 95% 0%,  rgba(184,150,60,0.07) 0%,transparent 45%);
+}
+.hdr-in{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+.eyebrow{
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--green); margin-bottom:14px; opacity:.7;
+}
+.hdr h1{
+  font-family:'Inter',sans-serif; font-size:clamp(28px,4.5vw,48px);
+  line-height:1.1; font-weight:700; margin-bottom:14px;
+  color:var(--ink); letter-spacing:-.02em;
+}
+.hdr h1 em{font-style:italic; font-weight:300; color:var(--green3)}
+.hdr-sub{font-size:13px; color:var(--ink3); max-width:540px; line-height:1.75}
+.hdr-pills{display:flex; gap:8px; margin-top:20px; flex-wrap:wrap}
+.hdr-pill{
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.04em;
+  padding:3px 10px; border-radius:20px; border:0.5px solid var(--bdr);
+  color:var(--ink3); background:var(--bg);
+}
+.hdr-stats{display:grid; grid-template-columns:repeat(4,auto); gap:40px; margin-top:40px; width:fit-content; padding-top:32px; border-top:0.5px solid var(--bdr2)}
+.hst{}
+.hst-n{font-family:'Inter',sans-serif; font-size:40px; color:var(--ink); line-height:1; font-weight:400}
+.hst-n span{font-size:22px; color:var(--ink3)}
+.hst-l{font-size:11px; color:var(--ink3); margin-top:5px; letter-spacing:.06em; text-transform:uppercase}
+
+/* ─ LAYOUT ─ */
+.wrap{max-width:1100px;margin:0 auto;padding:36px 28px}
+.section-row{display:flex;align-items:baseline;gap:10px;margin-bottom:18px}
+.section-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:400;color:var(--ink)}
+.section-ct{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.05em}
+.card{background:var(--white);border-radius:var(--r);border:0.5px solid var(--bdr);box-shadow:var(--shadow)}
+
+/* ─ CHART GRID ─ */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.chart-card{background:var(--white);border-radius:var(--r);border:0.5px solid var(--bdr);box-shadow:var(--shadow);padding:22px}
+.chart-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:16px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink2);width:22px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:9px;background:var(--bg2);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;background:var(--green);transition:width .7s cubic-bezier(.34,1.3,.64,1)}
+.bar-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);width:26px;text-align:right}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.cs-legend{font-size:11px;line-height:1.9;color:var(--ink2)}
+.cs-item{display:flex;align-items:center;gap:7px}
+.cs-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ─ TABS ─ */
+.tabs{display:flex;border-bottom:0.5px solid var(--bdr);background:var(--white);border-radius:var(--r) var(--r) 0 0;overflow:hidden}
+.tab{padding:13px 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
+.tab:hover{color:var(--ink);background:var(--bg)}
+.tab.on{color:var(--green3);border-bottom-color:var(--green)}
+
+/* ─ CONTROLS ─ */
+.ctrls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:14px 18px;border-bottom:0.5px solid var(--bdr2);background:var(--bg)}
+.pill{font-size:12px;font-weight:500;padding:4px 13px;border-radius:20px;border:0.5px solid var(--bdr);background:transparent;cursor:pointer;color:var(--ink2);transition:.15s;font-family:'Inter',sans-serif}
+.pill:hover{border-color:var(--green);color:var(--green3)}
+.pill.on{background:var(--green);color:#fff;border-color:var(--green)}
+select,input[type=text]{
+  font-size:12px;font-family:'Inter',sans-serif;padding:5px 10px;
+  border:0.5px solid var(--bdr);border-radius:var(--r-sm);
+  background:var(--white);color:var(--ink);outline:none;transition:.15s;
+}
+select:focus,input:focus{border-color:var(--green)}
+
+/* ─ BROWSE ─ */
+.browse-grid{display:grid;grid-template-columns:1fr 340px}
+.tbl-wrap{overflow:auto;max-height:440px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{
+  font-size:10px;font-weight:600;color:var(--ink3);text-align:left;
+  padding:8px 12px;border-bottom:0.5px solid var(--bdr);position:sticky;
+  top:0;background:var(--white);z-index:1;cursor:pointer;user-select:none;
+  letter-spacing:.07em;text-transform:uppercase;
+}
+th:hover{color:var(--ink)}
+td{padding:7px 12px;border-bottom:0.5px solid var(--bg2)}
+tr:hover td{background:var(--bg);cursor:pointer}
+tr.sel td{background:var(--green2)}
+.m-name{font-weight:600;font-family:'DM Mono',monospace;font-size:12px;color:var(--ink)}
+.eg-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)}
+.cs-val{font-size:12px;color:var(--ink3);text-transform:capitalize}
+.mp-tag{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);
+  text-decoration:none;background:var(--blue2);padding:2px 7px;
+  border-radius:4px;transition:.15s;
+}
+.mp-tag:hover{background:#d5e0f5}
+.no-mp{font-size:11px;color:var(--ink4);font-family:'DM Mono',monospace}
+.pag{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:0.5px solid var(--bg2);font-size:12px;color:var(--ink3);background:var(--white);border-radius:0 0 0 var(--r)}
+.pag button{padding:3px 12px;border:0.5px solid var(--bdr);border-radius:5px;background:transparent;cursor:pointer;font-size:12px;color:var(--ink2);font-family:'Inter',sans-serif;transition:.15s}
+.pag button:hover{background:var(--bg)}
+.pag button:disabled{opacity:.35;cursor:default}
+
+/* ─ DETAIL ─ */
+.detail{padding:24px;background:var(--bg);border-left:0.5px solid var(--bdr);min-height:440px;border-radius:0 0 var(--r) 0}
+.d-empty{color:var(--ink3);font-size:13px;text-align:center;margin-top:100px;line-height:2}
+.d-formula{font-family:'Inter',sans-serif;font-size:28px;color:var(--ink);font-weight:400;margin-bottom:3px}
+.d-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);margin-bottom:14px;letter-spacing:.04em;text-transform:uppercase}
+.mp-btn{
+  display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  color:var(--blue);background:var(--blue2);border-radius:var(--r-sm);padding:6px 12px;
+  text-decoration:none;margin-bottom:20px;border:0.5px solid rgba(38,85,168,0.18);
+  transition:.15s;letter-spacing:.01em;
+}
+.mp-btn:hover{background:#d5e0f5;color:#1a3d80}
+.kv{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:0.5px solid var(--bg3);font-size:12px;gap:12px}
 .kv:last-child{border-bottom:none}
-.kk{color:var(--txt2)}.kv-val{font-weight:500;text-align:right;max-width:60%;word-break:break-all}
-.mp-link{font-size:11px;color:var(--blue);text-decoration:none}
-.mp-link:hover{text-decoration:underline}
-.no-mp{font-size:11px;color:var(--txt3);font-style:italic}
-.pag{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--txt2)}
-.pag button{padding:3px 10px;border:0.5px solid var(--bdr);border-radius:5px;
-             background:transparent;cursor:pointer;color:var(--txt2)}
-.pag button:disabled{opacity:.4;cursor:default}
-canvas{display:block;width:100%}
-.pt-grid{display:grid;grid-template-columns:repeat(18,1fr);gap:2px;margin-top:6px}
-.pt-cell{height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;
-          font-size:9px;font-weight:500;cursor:pointer;transition:opacity .15s}
-.pt-cell:hover{opacity:.7}
+.kk{color:var(--ink3);font-weight:500;white-space:nowrap}
+.kv-v{color:var(--ink);font-weight:600;font-family:'DM Mono',monospace;font-size:11px;text-align:right;word-break:break-all}
+.kv-v.accent{font-family:'Inter',sans-serif;font-size:20px;color:var(--green);font-weight:400}
+
+/* ─ SCATTER ─ */
+.sc-wrap{padding:22px}
+.range-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12px;color:var(--ink3)}
+.range-row input{flex:1;accent-color:var(--green)}
+.rv{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2);width:50px;text-align:center;background:var(--bg2);border-radius:4px;padding:2px 4px}
+.sc-note{font-size:12px;color:var(--ink3);margin-top:10px;line-height:1.7}
+
+/* ─ PERIODIC TABLE ─ */
+.pt-wrap{padding:22px}
+.pt-grid{display:grid;grid-template-columns:repeat(18,1fr);gap:3px;margin-bottom:14px}
+.pt-cell{
+  height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+  cursor:pointer;transition:all .12s;border:1px solid transparent;
+}
+.pt-cell:hover{transform:scale(1.18);z-index:2;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
 .pt-cell.empty{background:transparent;cursor:default;pointer-events:none}
-.pt-cell.present-t{background:var(--tol);color:#fff}
-.pt-cell.present-i{background:var(--int);color:#fff}
-.pt-cell.present-m{background:var(--fai);color:#fff}
-.pt-cell.absent{background:var(--bg2);color:var(--txt3)}
-.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--txt2)}
-.ldot{width:12px;height:12px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:4px}
-.range-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--txt2)}
-.range-row input{flex:1}
-.info-note{font-size:11px;color:var(--txt3);margin-top:6px;line-height:1.6}
-@media(max-width:700px){
-  .stat-row{grid-template-columns:repeat(3,1fr)}
-  .grid2{grid-template-columns:1fr}
+.pt-cell.present{background:var(--green);color:#fff;border-color:rgba(0,0,0,0.08)}
+.pt-cell.absent{background:var(--bg2);color:var(--ink4)}
+.pt-info{min-height:20px;padding:6px 0;font-size:13px;color:var(--ink2);font-weight:500}
+.legend-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3)}
+.ldot{width:12px;height:12px;border-radius:3px}
+
+/* ─ RESPONSIVE ─ */
+@media(max-width:820px){
+  .browse-grid{grid-template-columns:1fr}
+  .detail{border-left:none;border-top:0.5px solid var(--bdr)}
+  .chart-grid{grid-template-columns:1fr}
+  .hdr-stats{grid-template-columns:repeat(2,auto);gap:24px}
 }
 </style>
 </head>
 <body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="eyebrow">Computational Materials Science · High-Throughput Screening</div>
+    <h1>Defect-Tolerant<br><em>PV Materials</em></h1>
+    <p class="hdr-sub">242 candidates screened via MatterSim force-field relaxation, FERE chemical potential analysis, and HamGNN band structure — all defect states confirmed shallow.</p>
+    <div class="hdr-pills">
+      <span class="hdr-pill">MatterSim ML force field</span>
+      <span class="hdr-pill">doped + FERE chempots</span>
+      <span class="hdr-pill">HamGNN band structure</span>
+      <span class="hdr-pill">Materials Project linked</span>
+    </div>
+    <div class="hdr-stats">
+      <div class="hst"><div class="hst-n">242</div><div class="hst-l">Tolerant candidates</div></div>
+      <div class="hst"><div class="hst-n">1.37<span> eV</span></div><div class="hst-l">Avg band gap</div></div>
+      <div class="hst"><div class="hst-n">49</div><div class="hst-l">Unique elements</div></div>
+      <div class="hst"><div class="hst-n">242</div><div class="hst-l">MP IDs verified</div></div>
+    </div>
+  </div>
+</header>
+
 <div class="wrap">
 
-<h1>Defect-Tolerant PV Materials</h1>
-<div class="sub">Defect-tolerant candidates · 242 materials · linked to Materials Project
-  · <span id="mp-coverage">242</span>/242 with verified MP ID</div>
-
-<div class="stat-row">
-  <div class="stat"><div class="stat-lbl">Defect tolerant</div>
-    <div class="stat-val green">242</div></div>
-  <div class="stat"><div class="stat-lbl">Verified MP ID</div>
-    <div class="stat-val">242</div></div>
-  <div class="stat"><div class="stat-lbl">Avg Eg (tolerant)</div>
-    <div class="stat-val amber">1.37 eV</div></div>
-</div>
-
-<div class="tabs">
-  <div class="tab on" onclick="switchTab('browse',this)">Browse</div>
-  <div class="tab" onclick="switchTab('scatter',this)">Band gap scatter</div>
-  <div class="tab" onclick="switchTab('ptable',this)">Periodic table</div>
-</div>
-
-<!-- ========== BROWSE ========== -->
-<div id="pane-browse">
-  <div class="panel" style="padding-bottom:8px">
-    <div class="ctrls">
-      <select id="cs-sel" onchange="render()">
-        <option value="">All crystal systems</option>
-        <option>cubic</option><option>hexagonal</option><option>orthorhombic</option>
-        <option>tetragonal</option><option>monoclinic</option><option>triclinic</option>
-        <option>trigonal</option>
-      </select>
-      <input type="text" id="q" placeholder="Formula or element…" oninput="onQ(this.value)"
-             style="width:160px">
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Most common elements in tolerant materials</div>
+      <div id="el-bars"></div>
     </div>
-    <div class="grid2">
-      <div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th onclick="srt('m')">Material ↕</th>
-              <th onclick="srt('bg')">Eg (eV) ↕</th>
-              <th onclick="srt('cs')">Crystal ↕</th>
-              <th>MP</th>
-            </tr></thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-        <div class="pag">
-          <button id="bprev" onclick="pg(-1)" disabled>← prev</button>
-          <span id="pginfo"></span>
-          <button id="bnext" onclick="pg(1)">next →</button>
-          <span id="pgct" style="margin-left:auto"></span>
-        </div>
-      </div>
-      <div class="detail" id="detail">
-        <div style="color:var(--txt3);font-size:12px;margin-top:50px;text-align:center">
-          ← Click a row to view details
-        </div>
+    <div class="chart-card">
+      <div class="chart-title">Crystal system distribution</div>
+      <div class="donut-wrap">
+        <canvas id="cs-donut" width="100" height="100" style="flex-shrink:0"></canvas>
+        <div class="cs-legend" id="cs-legend"></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ========== SCATTER ========== -->
-<div id="pane-scatter" style="display:none">
-  <div class="panel">
-  
-    <div class="range-row">
-      Band gap range:
-      <input type="range" id="bg-min" min="0" max="3.5" step="0.1" value="0" oninput="drawScat()">
-      <span id="bg-min-v">0 eV</span> –
-      <input type="range" id="bg-max" min="0" max="3.5" step="0.1" value="3.5" oninput="drawScat()">
-      <span id="bg-max-v">3.5 eV</span>
+  <div class="section-row">
+    <div class="section-title">Browse Materials</div>
+    <div class="section-ct" id="result-ct"></div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab on"  onclick="switchTab('browse',this)">Browse</div>
+      <div class="tab" onclick="switchTab('scatter',this)">Band gap</div>
+      <div class="tab" onclick="switchTab('ptable',this)">Periodic table</div>
     </div>
-    <canvas id="sc" height="280"></canvas>
-    <div class="info-note">
-      Each dot = one material. X: band gap (eV, from MP GGA). Y: number of shallow defects.
-      Green = defect tolerant, orange = intolerant.
-      <br>Optimal PV window (1.1–1.8 eV) is shaded.
-      Click any dot to see details in Browse tab.
+
+    <!-- BROWSE -->
+    <div id="pane-browse">
+      <div class="ctrls">
+        <select id="cs-sel" onchange="render()">
+          <option value="">All crystal systems</option>
+          <option>trigonal</option><option>tetragonal</option><option>orthorhombic</option>
+          <option>monoclinic</option><option>cubic</option><option>hexagonal</option><option>triclinic</option>
+        </select>
+        <select id="el-sel" onchange="render()"><option value="">All elements</option></select>
+        <input type="text" id="q" placeholder="Search formula…" oninput="onQ(this.value)" style="width:160px">
+        <span style="margin-left:auto;font-size:11px;color:var(--ink3)">Click a column header to sort</span>
+      </div>
+      <div class="browse-grid">
+        <div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th onclick="srt('m')">Formula ↕</th>
+                <th onclick="srt('bg')">Eg (eV) ↕</th>
+                <th onclick="srt('cs')">Crystal system ↕</th>
+                <th onclick="srt('ns')">Sites ↕</th>
+                <th>MP link</th>
+              </tr></thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div class="pag">
+            <button id="bprev" onclick="pg(-1)" disabled>← prev</button>
+            <span id="pginfo"></span>
+            <button id="bnext" onclick="pg(1)">next →</button>
+            <span style="margin-left:auto" id="pgct"></span>
+          </div>
+        </div>
+        <div class="detail" id="detail"><div class="d-empty">← Select a material<br>to view details</div></div>
+      </div>
+    </div>
+
+    <!-- SCATTER -->
+    <div id="pane-scatter" style="display:none">
+      <div class="sc-wrap">
+        <div class="range-row">
+          <span>Eg range:</span>
+          <input type="range" id="bgmin" min="0" max="4" step="0.1" value="0" oninput="drawScat()">
+          <span class="rv" id="bgminv">0.0</span>
+          <span>–</span>
+          <input type="range" id="bgmax" min="0" max="4" step="0.1" value="4" oninput="drawScat()">
+          <span class="rv" id="bgmaxv">4.0</span>
+          <span>eV</span>
+        </div>
+        <canvas id="sc" height="320" style="width:100%;border-radius:var(--r-sm);border:0.5px solid var(--bdr)"></canvas>
+        <div class="sc-note">
+          Each dot = one tolerant material. X: band gap (eV, MP GGA+U). Y: shallow defect count (all = 3). 
+          Green shaded band = ideal single-junction PV window 1.1–1.8 eV. 
+          Hover to identify materials.
+        </div>
+      </div>
+    </div>
+
+    <!-- PERIODIC TABLE -->
+    <div id="pane-ptable" style="display:none">
+      <div class="pt-wrap">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <button class="pill on" onclick="setPt('all',this)">All tolerant</button>
+          <button class="pill" onclick="setPt('ox',this)">Oxides</button>
+          <button class="pill" onclick="setPt('hal',this)">Halides</button>
+          <button class="pill" onclick="setPt('sulf',this)">Sulfides</button>
+        </div>
+        <div class="pt-grid" id="ptgrid"></div>
+        <div class="pt-info" id="pt-info">Click an element to see which materials contain it.</div>
+        <div class="legend-row">
+          <div class="leg"><div class="ldot" style="background:var(--green)"></div>Present in database</div>
+          <div class="leg"><div class="ldot" style="background:var(--bg2);border:0.5px solid var(--bdr)"></div>Not in database</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ========== PERIODIC TABLE ========== -->
-<div id="pane-ptable" style="display:none">
-  <div class="panel">
-    <div class="ctrls">
-      <label style="font-size:12px;color:var(--txt2)">Color by:</label>
-      <button class="pill on" onclick="setPt('all',this)">All tolerant</button>
-      <button class="pill" onclick="setPt('cs',this)">Cubic only</button>
-      <button class="pill" onclick="setPt('ox',this)">Oxides only</button>
-    </div>
-    <div class="pt-grid" id="ptgrid"></div>
-    <div class="legend">
-      <span><span class="ldot" style="background:var(--tol)"></span>In tolerant database</span>
-      <span><span class="ldot" style="background:var(--bg2);border:0.5px solid var(--bdr)"></span>Not in database</span>
-    </div>
-    <div id="pt-info" style="font-size:12px;color:var(--txt);margin-top:12px;min-height:20px"></div>
-  </div>
-</div>
-
-</div><!-- /wrap -->
+<footer style="text-align:center;padding:36px 24px;font-size:12px;color:var(--ink3);border-top:0.5px solid var(--bg3);margin-top:40px">
+  Defect-Tolerant PV Materials Database &middot; MatterSim + HamGNN screening &middot;
+  Data linked to <a href="https://materialsproject.org" target="_blank" style="color:var(--blue)">Materials Project</a>
+</footer>
 
 <script>
-const D=[{"m":"Al2Te3","c":"t","s":3,"d":0,"e":["Al","Te"],"bg":1.85,"cs":"Monoclinic","sg":"P2_1/c","ns":40,"mp":"mp-29502","url":"https://next-gen.materialsproject.org/materials/mp-29502","mu":{"Al":-3.579,"Te":-3.631},"dmu":{"Al":-0.559,"Te":-0.381}},{"m":"Al2Te5","c":"t","s":3,"d":0,"e":["Al","Te"],"bg":1.05,"cs":"Monoclinic","sg":"C2/m","ns":7,"mp":"mp-9254","url":"https://next-gen.materialsproject.org/materials/mp-9254","mu":{"Al":-4.147,"Te":-3.255},"dmu":{"Al":-1.127,"Te":-0.005}},{"m":"Al4GaSb5","c":"t","s":3,"d":0,"e":["Al","Ga","Sb"],"bg":0.99,"cs":"Orthorhombic","sg":"Imm2","ns":10,"mp":"mp-1228691","url":"https://next-gen.materialsproject.org/materials/mp-1228691","mu":{"Al":-3.025,"Ga":-2.371,"Sb":-4.606},"dmu":{"Al":-0.005,"Ga":-0.001,"Sb":-0.316}},{"m":"AlAgO2","c":"t","s":3,"d":0,"e":["Al","Ag","O"],"bg":1.41,"cs":"Hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-9631","url":"https://next-gen.materialsproject.org/materials/mp-9631","mu":{"Al":-10.334,"Ag":-0.951,"O":-4.942},"dmu":{"Al":-7.314,"Ag":-0.121,"O":-0.212}},{"m":"Ba(AlTe2)2","c":"t","s":3,"d":0,"e":["Ba","Al","Te"],"bg":1.54,"cs":"Tetragonal","sg":"P4/nbm","ns":14,"mp":"mp-28505","url":"https://next-gen.materialsproject.org/materials/mp-28505","mu":{"Ba":-4.912,"Al":-3.742,"Te":-3.584},"dmu":{"Ba":-3.522,"Al":-0.722,"Te":-0.334}},{"m":"Ba(CaAs)2","c":"t","s":3,"d":0,"e":["Ba","Ca","As"],"bg":1.79,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3202580","url":"https://next-gen.materialsproject.org/materials/mp-3202580","mu":{"Ba":-2.029,"Ca":-2.373,"As":-6.797},"dmu":{"Ba":-0.639,"Ca":-0.733,"As":-1.737}},{"m":"Ba(CaBi)2","c":"t","s":3,"d":0,"e":["Ba","Ca","Bi"],"bg":1.47,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3201275","url":"https://next-gen.materialsproject.org/materials/mp-3201275","mu":{"Ba":-2.494,"Ca":-2.589,"Bi":-5.047},"dmu":{"Ba":-1.104,"Ca":-0.949,"Bi":-0.657}},{"m":"Ba(CaSb)2","c":"t","s":3,"d":0,"e":["Ba","Ca","Sb"],"bg":1.56,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3202589","url":"https://next-gen.materialsproject.org/materials/mp-3202589","mu":{"Ba":-2.212,"Ca":-2.359,"Sb":-5.902},"dmu":{"Ba":-0.822,"Ca":-0.719,"Sb":-1.612}},{"m":"Ba(MgAs)2","c":"t","s":3,"d":0,"e":["Ba","Mg","As"],"bg":1.07,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-8280","url":"https://next-gen.materialsproject.org/materials/mp-8280","mu":{"Ba":-3.032,"Mg":-1.728,"As":-5.866},"dmu":{"Ba":-1.642,"Mg":-0.738,"As":-0.806}},{"m":"Ba(MgP)2","c":"t","s":3,"d":0,"e":["Ba","Mg","P"],"bg":1.14,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-8278","url":"https://next-gen.materialsproject.org/materials/mp-8278","mu":{"Ba":-2.657,"Mg":-1.582,"P":-6.744},"dmu":{"Ba":-1.267,"Mg":-0.592,"P":-1.104}},{"m":"Ba(SrSb)2","c":"t","s":3,"d":0,"e":["Ba","Sr","Sb"],"bg":1.53,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3200923","url":"https://next-gen.materialsproject.org/materials/mp-3200923","mu":{"Ba":-2.218,"Sr":-1.926,"Sb":-5.857},"dmu":{"Ba":-0.828,"Sr":-0.756,"Sb":-1.567}},{"m":"Ba2CaAs2","c":"t","s":3,"d":0,"e":["Ba","Ca","As"],"bg":1.29,"cs":"Orthorhombic","sg":"Cmc2_1","ns":10,"mp":"mp-3215826","url":"https://next-gen.materialsproject.org/materials/mp-3215826","mu":{"Ba":-2.029,"Ca":-2.373,"As":-6.796},"dmu":{"Ba":-0.639,"Ca":-0.733,"As":-1.736}},{"m":"Ba2PCl","c":"t","s":3,"d":0,"e":["Ba","P","Cl"],"bg":1.26,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-27869","url":"https://next-gen.materialsproject.org/materials/mp-27869","mu":{"Ba":-2.102,"P":-7.177,"Cl":-5.331},"dmu":{"Ba":-0.712,"P":-1.537,"Cl":-3.701}},{"m":"Ba2Sc2O5","c":"t","s":3,"d":0,"e":["Ba","Sc","O"],"bg":2.85,"cs":"Orthorhombic","sg":"Pbam","ns":18,"mp":"mp-755950","url":"https://next-gen.materialsproject.org/materials/mp-755950","mu":{"Ba":-3.607,"Sc":-9.505,"O":-7.521},"dmu":{"Ba":-2.217,"Sc":-4.875,"O":-2.791}},{"m":"Ba2Sr2As2O","c":"t","s":3,"d":0,"e":["Ba","Sr","As","O"],"bg":0.95,"cs":"Tetragonal","sg":"I4/mmm","ns":7,"mp":"mp-3202529","url":"https://next-gen.materialsproject.org/materials/mp-3202529","mu":{"Ba":-2.339,"Sr":-2.311,"As":-6.499,"O":-9.32},"dmu":{"Ba":-0.949,"Sr":-1.141,"As":-1.439,"O":-4.59}},{"m":"Ba2TeO","c":"t","s":3,"d":0,"e":["Ba","Te","O"],"bg":1.78,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1078191","url":"https://next-gen.materialsproject.org/materials/mp-1078191","mu":{"Ba":-2.882,"Te":-5.396,"O":-8.251},"dmu":{"Ba":-1.492,"Te":-2.146,"O":-3.521}},{"m":"Ba3Na3AsP2","c":"t","s":3,"d":0,"e":["Ba","Na","As","P"],"bg":1.22,"cs":"Hexagonal","sg":"P-62m","ns":9,"mp":"mp-3201392","url":"https://next-gen.materialsproject.org/materials/mp-3201392","mu":{"Ba":-2.676,"Na":-1.366,"As":-5.801,"P":-6.362},"dmu":{"Ba":-1.286,"Na":-0.306,"As":-0.741,"P":-0.722}},{"m":"Ba3Sr(MgAs2)2","c":"t","s":3,"d":0,"e":["Ba","Sr","Mg","As"],"bg":1.24,"cs":"Monoclinic","sg":"Cm","ns":10,"mp":"mp-3208044","url":"https://next-gen.materialsproject.org/materials/mp-3208044","mu":{"Ba":-2.307,"Sr":-2.165,"Mg":-1.588,"As":-6.369},"dmu":{"Ba":-0.917,"Sr":-0.995,"Mg":-0.598,"As":-1.309}},{"m":"Ba4BiAsO","c":"t","s":3,"d":0,"e":["Ba","Bi","As","O"],"bg":0.9,"cs":"Tetragonal","sg":"I4mm","ns":7,"mp":"mp-3202871","url":"https://next-gen.materialsproject.org/materials/mp-3202871","mu":{"Ba":-2.368,"Bi":-5.569,"As":-6.493,"O":-9.059},"dmu":{"Ba":-0.978,"Bi":-1.179,"As":-1.433,"O":-4.329}},{"m":"BaAgSF","c":"t","s":3,"d":0,"e":["Ba","Ag","S","F"],"bg":1.43,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1086652","url":"https://next-gen.materialsproject.org/materials/mp-1086652","mu":{"Ba":-5.499,"Ag":-0.889,"S":-4.113,"F":-5.472},"dmu":{"Ba":-4.109,"Ag":-0.059,"S":-0.113,"F":-3.772}},{"m":"BaAuO2","c":"t","s":3,"d":0,"e":["Ba","Au","O"],"bg":1.19,"cs":"Monoclinic","sg":"C2/m","ns":8,"mp":"mp-997009","url":"https://next-gen.materialsproject.org/materials/mp-997009","mu":{"Ba":-5.774,"Au":-2.231,"O":-5.478},"dmu":{"Ba":-4.384,"Au":-0.001,"O":-0.748}},{"m":"BaGaSbO","c":"t","s":3,"d":0,"e":["Ba","Ga","Sb","O"],"bg":1.2,"cs":"Trigonal","sg":"P3m1","ns":4,"mp":"mp-3201071","url":"https://next-gen.materialsproject.org/materials/mp-3201071","mu":{"Ba":-3.38,"Ga":-2.939,"Sb":-4.695,"O":-8.27},"dmu":{"Ba":-1.99,"Ga":-0.569,"Sb":-0.405,"O":-3.54}},{"m":"BaHfN2","c":"t","s":3,"d":0,"e":["Ba","Hf","N"],"bg":1.25,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-10322","url":"https://next-gen.materialsproject.org/materials/mp-10322","mu":{"Ba":-1.806,"Hf":-10.321,"N":-9.526},"dmu":{"Ba":-0.416,"Hf":-2.921,"N":-1.016}},{"m":"BaLiP","c":"t","s":3,"d":0,"e":["Ba","Li","P"],"bg":0.96,"cs":"Hexagonal","sg":"P6_3/mmc","ns":6,"mp":"mp-13277","url":"https://next-gen.materialsproject.org/materials/mp-13277","mu":{"Ba":-2.076,"Li":-2.16,"P":-7.177},"dmu":{"Ba":-0.686,"Li":-0.51,"P":-1.537}},{"m":"BaMgBiF","c":"t","s":3,"d":0,"e":["Ba","Mg","Bi","F"],"bg":1.33,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-3333344","url":"https://next-gen.materialsproject.org/materials/mp-3333344","mu":{"Ba":-2.523,"Mg":-1.327,"Bi":-5.278,"F":-7.103},"dmu":{"Ba":-1.133,"Mg":-0.337,"Bi":-0.888,"F":-5.403}},{"m":"BaS2","c":"t","s":3,"d":0,"e":["Ba","S"],"bg":1.6,"cs":"Monoclinic","sg":"C2/c","ns":6,"mp":"mp-684","url":"https://next-gen.materialsproject.org/materials/mp-684","mu":{"Ba":-5.548,"S":-4.05},"dmu":{"Ba":-4.158,"S":-0.05}},{"m":"BaS3","c":"t","s":3,"d":0,"e":["Ba","S"],"bg":1.39,"cs":"Tetragonal","sg":"P-42_1m","ns":8,"mp":"mp-239","url":"https://next-gen.materialsproject.org/materials/mp-239","mu":{"Ba":-5.646,"S":-4.001},"dmu":{"Ba":-4.256,"S":-0.001}},{"m":"BaScS2F","c":"t","s":3,"d":0,"e":["Ba","Sc","S","F"],"bg":1.61,"cs":"Tetragonal","sg":"P4/mmm","ns":5,"mp":"mp-3200640","url":"https://next-gen.materialsproject.org/materials/mp-3200640","mu":{"Ba":-3.939,"Sc":-7.179,"S":-6.018,"F":-6.684},"dmu":{"Ba":-2.549,"Sc":-2.549,"S":-2.018,"F":-4.984}},{"m":"BaSe3","c":"t","s":3,"d":0,"e":["Ba","Se"],"bg":0.93,"cs":"Tetragonal","sg":"P-42_1m","ns":8,"mp":"mp-7548","url":"https://next-gen.materialsproject.org/materials/mp-7548","mu":{"Ba":-5.572,"Se":-3.551},"dmu":{"Ba":-4.182,"Se":-0.001}},{"m":"BaSnSeS","c":"t","s":3,"d":0,"e":["Ba","Sn","Se","S"],"bg":1.14,"cs":"Orthorhombic","sg":"Pmc2_1","ns":8,"mp":"mp-3201429","url":"https://next-gen.materialsproject.org/materials/mp-3201429","mu":{"Ba":-5.259,"Sn":-4.411,"Se":-4.341,"S":-4.763},"dmu":{"Ba":-3.869,"Sn":-0.621,"Se":-0.791,"S":-0.763}},{"m":"BaTe","c":"t","s":3,"d":0,"e":["Ba","Te"],"bg":1.22,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1000","url":"https://next-gen.materialsproject.org/materials/mp-1000","mu":{"Ba":-3.184,"Te":-5.044},"dmu":{"Ba":-1.794,"Te":-1.794}},{"m":"BaTiO3","c":"t","s":3,"d":0,"e":["Ba","Ti","O"],"bg":1.68,"cs":"tetragonal","sg":"P4mm","ns":5,"mp":"mp-2998","url":"https://next-gen.materialsproject.org/materials/mp-2998","mu":{"Ba":-4.331,"Ti":-9.281,"O":-7.631},"dmu":{"Ba":-2.941,"Ti":-3.761,"O":-2.901}},{"m":"BaZrN2","c":"t","s":3,"d":0,"e":["Ba","Zr","N"],"bg":1.0,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-3104","url":"https://next-gen.materialsproject.org/materials/mp-3104","mu":{"Ba":-2.073,"Zr":-8.771,"N":-9.208},"dmu":{"Ba":-0.683,"Zr":-2.901,"N":-0.698}},{"m":"Bi2S2O","c":"t","s":3,"d":0,"e":["Bi","S","O"],"bg":0.94,"cs":"Tetragonal","sg":"P4/nmm","ns":10,"mp":"mp-1078366","url":"https://next-gen.materialsproject.org/materials/mp-1078366","mu":{"Bi":-4.627,"S":-4.431,"O":-6.714},"dmu":{"Bi":-0.237,"S":-0.431,"O":-1.984}},{"m":"Bi3BrO4","c":"t","s":3,"d":0,"e":["Bi","Br","O"],"bg":0.93,"cs":"Tetragonal","sg":"P4/mmm","ns":8,"mp":"mp-866311","url":"https://next-gen.materialsproject.org/materials/mp-866311","mu":{"Bi":-6.209,"Br":-2.328,"O":-5.591},"dmu":{"Bi":-1.819,"Br":-0.868,"O":-0.861}},{"m":"BiIO","c":"t","s":3,"d":0,"e":["Bi","I","O"],"bg":1.47,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-22987","url":"https://next-gen.materialsproject.org/materials/mp-22987","mu":{"Bi":-5.714,"I":-1.83,"O":-6.047},"dmu":{"Bi":-1.324,"I":-0.3,"O":-1.317}},{"m":"BiTeBr","c":"t","s":3,"d":0,"e":["Bi","Te","Br"],"bg":1.24,"cs":"Trigonal","sg":"P3m1","ns":3,"mp":"mp-33723","url":"https://next-gen.materialsproject.org/materials/mp-33723","mu":{"Bi":-4.656,"Te":-3.505,"Br":-2.453},"dmu":{"Bi":-0.266,"Te":-0.255,"Br":-0.993}},{"m":"BiTeCl","c":"t","s":3,"d":0,"e":["Bi","Te","Cl"],"bg":1.51,"cs":"Hexagonal","sg":"P6_3mc","ns":6,"mp":"mp-28944","url":"https://next-gen.materialsproject.org/materials/mp-28944","mu":{"Bi":-4.676,"Te":-3.518,"Cl":-2.869},"dmu":{"Bi":-0.286,"Te":-0.268,"Cl":-1.239}},{"m":"BiTeI","c":"t","s":3,"d":0,"e":["Bi","Te","I"],"bg":1.23,"cs":"Trigonal","sg":"P3m1","ns":3,"mp":"mp-22965","url":"https://next-gen.materialsproject.org/materials/mp-22965","mu":{"Bi":-4.652,"Te":-3.502,"I":-2.13},"dmu":{"Bi":-0.262,"Te":-0.252,"I":-0.6}},{"m":"BrCl","c":"t","s":3,"d":0,"e":["Br","Cl"],"bg":1.78,"cs":"Orthorhombic","sg":"Cmc2_1","ns":4,"mp":"mp-1066781","url":"https://next-gen.materialsproject.org/materials/mp-1066781","mu":{"Br":-1.514,"Cl":-1.684},"dmu":{"Br":-0.054,"Cl":-0.054}},{"m":"Ca(MgAs)2","c":"t","s":3,"d":0,"e":["Ca","Mg","As"],"bg":1.26,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-9564","url":"https://next-gen.materialsproject.org/materials/mp-9564","mu":{"Ca":-3.425,"Mg":-1.787,"As":-5.729},"dmu":{"Ca":-1.785,"Mg":-0.797,"As":-0.669}},{"m":"Ca2SnS4","c":"t","s":3,"d":0,"e":["Ca","Sn","S"],"bg":2.26,"cs":"Orthorhombic","sg":"Pnma","ns":28,"mp":"mp-866503","url":"https://next-gen.materialsproject.org/materials/mp-866503","mu":{"Ca":-5.813,"Sn":-4.666,"S":-4.131},"dmu":{"Ca":-4.173,"Sn":-0.876,"S":-0.131}},{"m":"CaPtO3","c":"t","s":3,"d":0,"e":["Ca","Pt","O"],"bg":1.29,"cs":"Orthorhombic","sg":"Cmcm","ns":10,"mp":"mp-4784","url":"https://next-gen.materialsproject.org/materials/mp-4784","mu":{"Ca":-6.554,"Pt":-3.951,"O":-5.743},"dmu":{"Ca":-4.914,"Pt":-0.001,"O":-1.013}},{"m":"CaTe","c":"t","s":3,"d":0,"e":["Ca","Te"],"bg":0.67,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1519","url":"https://next-gen.materialsproject.org/materials/mp-1519","mu":{"Ca":-3.289,"Te":-4.899},"dmu":{"Ca":-1.649,"Te":-1.649}},{"m":"CoAgO2","c":"t","s":3,"d":0,"e":["Co","Ag","O"],"bg":1.33,"cs":"Hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-19178","url":"https://next-gen.materialsproject.org/materials/mp-19178","mu":{"Co":-5.168,"Ag":-1.026,"O":-4.948},"dmu":{"Co":-0.418,"Ag":-0.196,"O":-0.218}},{"m":"CrAgO2","c":"t","s":3,"d":0,"e":["Cr","Ag","O"],"bg":1.66,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-19378","url":"https://next-gen.materialsproject.org/materials/mp-19378","mu":{"Cr":-9.885,"Ag":-0.985,"O":-5.01},"dmu":{"Cr":-2.665,"Ag":-0.155,"O":-0.28}},{"m":"CrAuO2","c":"t","s":3,"d":0,"e":["Cr","Au","O"],"bg":1.27,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-996996","url":"https://next-gen.materialsproject.org/materials/mp-996996","mu":{"Cr":-9.984,"Au":-2.317,"O":-4.866},"dmu":{"Cr":-2.764,"Au":-0.087,"O":-0.136}},{"m":"CrCuO2","c":"t","s":3,"d":0,"e":["Cr","Cu","O"],"bg":1.54,"cs":"Trigonal","sg":"R-3m","ns":8,"mp":"mp-510625","url":"https://next-gen.materialsproject.org/materials/mp-510625","mu":{"Cr":-8.438,"Cu":-2.123,"O":-5.93},"dmu":{"Cr":-1.218,"Cu":-0.153,"O":-1.2}},{"m":"Cs2In2As2O","c":"t","s":3,"d":0,"e":["Cs","In","As","O"],"bg":1.36,"cs":"Monoclinic","sg":"C2/m","ns":7,"mp":"mp-3201197","url":"https://next-gen.materialsproject.org/materials/mp-3201197","mu":{"Cs":-1.165,"In":-2.524,"As":-5.529,"O":-7.613},"dmu":{"Cs":-0.685,"In":-0.214,"As":-0.469,"O":-2.883}},{"m":"CsAuO2","c":"t","s":3,"d":0,"e":["Cs","Au","O"],"bg":1.52,"cs":"Orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-997024","url":"https://next-gen.materialsproject.org/materials/mp-997024","mu":{"Cs":-2.577,"Au":-2.554,"O":-5.111},"dmu":{"Cs":-2.097,"Au":-0.324,"O":-0.381}},{"m":"CsAuSe","c":"t","s":3,"d":0,"e":["Cs","Au","Se"],"bg":1.71,"cs":"Orthorhombic","sg":"Cmcm","ns":6,"mp":"mp-574599","url":"https://next-gen.materialsproject.org/materials/mp-574599","mu":{"Cs":-2.033,"Au":-2.44,"Se":-4.101},"dmu":{"Cs":-1.553,"Au":-0.21,"Se":-0.551}},{"m":"CsCuO","c":"t","s":3,"d":0,"e":["Cs","Cu","O"],"bg":1.12,"cs":"Orthorhombic","sg":"Cmcm","ns":6,"mp":"mp-541037","url":"https://next-gen.materialsproject.org/materials/mp-541037","mu":{"Cs":-1.246,"Cu":-2.222,"O":-6.596},"dmu":{"Cs":-0.766,"Cu":-0.252,"O":-1.866}},{"m":"CsCuO2","c":"t","s":3,"d":0,"e":["Cs","Cu","O"],"bg":0.97,"cs":"Orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-553310","url":"https://next-gen.materialsproject.org/materials/mp-553310","mu":{"Cs":-2.167,"Cu":-2.781,"O":-5.499},"dmu":{"Cs":-1.687,"Cu":-0.811,"O":-0.769}},{"m":"CsInBr3","c":"t","s":3,"d":0,"e":["Cs","In","Br"],"bg":1.38,"cs":"Cubic","sg":"Fm-3m","ns":10,"mp":"mp-1112338","url":"https://next-gen.materialsproject.org/materials/mp-1112338","mu":{"Cs":-3.158,"In":-2.834,"Br":-2.444},"dmu":{"Cs":-2.678,"In":-0.524,"Br":-0.984}},{"m":"CsLi2LaBi2","c":"t","s":3,"d":0,"e":["Cs","Li","La","Bi"],"bg":1.05,"cs":"Trigonal","sg":"P-3m1","ns":6,"mp":"mp-3248447","url":"https://next-gen.materialsproject.org/materials/mp-3248447","mu":{"Cs":-0.583,"Li":-2.143,"La":-4.927,"Bi":-5.22},"dmu":{"Cs":-0.103,"Li":-0.493,"La":-1.267,"Bi":-0.83}},{"m":"CsLi2LaSb2","c":"t","s":3,"d":0,"e":["Cs","Li","La","Sb"],"bg":1.14,"cs":"Trigonal","sg":"P-3m1","ns":6,"mp":"mp-3251791","url":"https://next-gen.materialsproject.org/materials/mp-3251791","mu":{"Cs":-0.743,"Li":-2.224,"La":-5.728,"Sb":-5.13},"dmu":{"Cs":-0.263,"Li":-0.574,"La":-2.068,"Sb":-0.84}},{"m":"CsMg4Bi3","c":"t","s":3,"d":0,"e":["Cs","Mg","Bi"],"bg":0.95,"cs":"Tetragonal","sg":"P4/mmm","ns":8,"mp":"mp-3337974","url":"https://next-gen.materialsproject.org/materials/mp-3337974","mu":{"Cs":-0.753,"Mg":-1.016,"Bi":-4.846},"dmu":{"Cs":-0.273,"Mg":-0.026,"Bi":-0.456}},{"m":"CsRb(YTe2)2","c":"t","s":3,"d":0,"e":["Cs","Rb","Y","Te"],"bg":1.74,"cs":"Hexagonal","sg":"P-6m2","ns":8,"mp":"mp-3201576","url":"https://next-gen.materialsproject.org/materials/mp-3201576","mu":{"Cs":-1.668,"Rb":-1.882,"Y":-6.913,"Te":-4.684},"dmu":{"Cs":-1.188,"Rb":-1.202,"Y":-2.103,"Te":-1.434}},{"m":"CsScZnAs2","c":"t","s":3,"d":0,"e":["Cs","Sc","Zn","As"],"bg":1.68,"cs":"Tetragonal","sg":"I-4m2","ns":5,"mp":"mp-3202376","url":"https://next-gen.materialsproject.org/materials/mp-3202376","mu":{"Cs":-0.536,"Sc":-6.631,"Zn":-0.878,"As":-5.808},"dmu":{"Cs":-0.056,"Sc":-2.001,"Zn":-0.038,"As":-0.748}},{"m":"CsSnCl3","c":"t","s":3,"d":0,"e":["Cs","Sn","Cl"],"bg":2.92,"cs":"Monoclinic","sg":"P2_1/c","ns":20,"mp":"mp-27394","url":"https://next-gen.materialsproject.org/materials/mp-27394","mu":{"Cs":-3.131,"Sn":-4.198,"Cl":-3.017},"dmu":{"Cs":-2.651,"Sn":-0.408,"Cl":-1.387}},{"m":"CsSnS3","c":"t","s":3,"d":0,"e":["Cs","Sn","S"],"bg":1.66,"cs":"Triclinic","sg":"P-1","ns":10,"mp":"mp-561710","url":"https://next-gen.materialsproject.org/materials/mp-561710","mu":{"Cs":-2.381,"Sn":-4.773,"S":-4.213},"dmu":{"Cs":-1.901,"Sn":-0.983,"S":-0.213}},{"m":"CsSnSe3","c":"t","s":3,"d":0,"e":["Cs","Sn","Se"],"bg":1.19,"cs":"Triclinic","sg":"P-1","ns":10,"mp":"mp-1542038","url":"https://next-gen.materialsproject.org/materials/mp-1542038","mu":{"Cs":-2.726,"Sn":-4.707,"Se":-3.64},"dmu":{"Cs":-2.246,"Sn":-0.917,"Se":-0.09}},{"m":"CsSrP","c":"t","s":3,"d":0,"e":["Cs","Sr","P"],"bg":1.64,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-3201101","url":"https://next-gen.materialsproject.org/materials/mp-3201101","mu":{"Cs":-0.481,"Sr":-2.344,"P":-6.563},"dmu":{"Cs":-0.001,"Sr":-1.174,"P":-0.923}},{"m":"CsTe","c":"t","s":3,"d":0,"e":["Cs","Te"],"bg":1.6,"cs":"orthorhombic","sg":"Pnma","ns":8,"mp":"mp-28229","url":"https://next-gen.materialsproject.org/materials/mp-28229","mu":{"Cs":-1.807,"Te":-3.62},"dmu":{"Cs":-1.327,"Te":-0.37}},{"m":"FeAgO2","c":"t","s":3,"d":0,"e":["Fe","Ag","O"],"bg":1.15,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-19225","url":"https://next-gen.materialsproject.org/materials/mp-19225","mu":{"Fe":-6.909,"Ag":-0.942,"O":-4.925},"dmu":{"Fe":-0.759,"Ag":-0.112,"O":-0.195}},{"m":"FeOF","c":"t","s":3,"d":0,"e":["Fe","O","F"],"bg":0.0,"cs":"Tetragonal","sg":"P4_2/m","ns":12,"mp":"mp-1178215","url":"https://next-gen.materialsproject.org/materials/mp-1178215","mu":{"Fe":-7.132,"O":-4.731,"F":-3.678},"dmu":{"Fe":-0.982,"O":-0.001,"F":-1.978}},{"m":"Ga2S3","c":"t","s":3,"d":0,"e":["Ga","S"],"bg":1.71,"cs":"Monoclinic","sg":"Cc","ns":10,"mp":"mp-539","url":"https://next-gen.materialsproject.org/materials/mp-539","mu":{"Ga":-3.498,"S":-4.354},"dmu":{"Ga":-1.128,"S":-0.354}},{"m":"Ga2Se3","c":"t","s":3,"d":0,"e":["Ga","Se"],"bg":1.04,"cs":"Monoclinic","sg":"Cc","ns":10,"mp":"mp-1340","url":"https://next-gen.materialsproject.org/materials/mp-1340","mu":{"Ga":-3.414,"Se":-3.831},"dmu":{"Ga":-1.044,"Se":-0.281}},{"m":"Ga2TeSe2","c":"t","s":3,"d":0,"e":["Ga","Te","Se"],"bg":1.61,"cs":"Tetragonal","sg":"I4_1md","ns":10,"mp":"mp-28423","url":"https://next-gen.materialsproject.org/materials/mp-28423","mu":{"Ga":-3.073,"Te":-3.351,"Se":-4.085},"dmu":{"Ga":-0.703,"Te":-0.101,"Se":-0.535}},{"m":"GaN","c":"t","s":3,"d":0,"e":["Ga","N"],"bg":1.68,"cs":"hexagonal","sg":"P6_3mc","ns":4,"mp":"mp-804","url":"https://next-gen.materialsproject.org/materials/mp-804","mu":{"Ga":-2.847,"N":-8.987},"dmu":{"Ga":-0.477,"N":-0.477}},{"m":"GaSe","c":"t","s":3,"d":0,"e":["Ga","Se"],"bg":1.21,"cs":"Hexagonal","sg":"P6_3mc","ns":16,"mp":"mp-568263","url":"https://next-gen.materialsproject.org/materials/mp-568263","mu":{"Ga":-2.683,"Se":-4.422},"dmu":{"Ga":-0.313,"Se":-0.872}},{"m":"Ge2SeS","c":"t","s":3,"d":0,"e":["Ge","Se","S"],"bg":1.13,"cs":"Orthorhombic","sg":"Pmc2_1","ns":8,"mp":"mp-1224376","url":"https://next-gen.materialsproject.org/materials/mp-1224376","mu":{"Ge":-4.141,"Se":-3.983,"S":-4.501},"dmu":{"Ge":-0.001,"Se":-0.433,"S":-0.501}},{"m":"GeS","c":"t","s":3,"d":0,"e":["Ge","S"],"bg":1.59,"cs":"orthorhombic","sg":"Pnma","ns":8,"mp":"mp-8566","url":"https://next-gen.materialsproject.org/materials/mp-8566","mu":{"Ge":-4.148,"S":-4.494},"dmu":{"Ge":-0.008,"S":-0.494}},{"m":"HfIN","c":"t","s":3,"d":0,"e":["Hf","I","N"],"bg":0.98,"cs":"Trigonal","sg":"R-3m","ns":6,"mp":"mp-567441","url":"https://next-gen.materialsproject.org/materials/mp-567441","mu":{"Hf":-10.386,"I":-2.02,"N":-9.277},"dmu":{"Hf":-2.986,"I":-0.49,"N":-0.767}},{"m":"HfS3","c":"t","s":3,"d":0,"e":["Hf","S"],"bg":1.13,"cs":"Monoclinic","sg":"P2_1/m","ns":8,"mp":"mp-9922","url":"https://next-gen.materialsproject.org/materials/mp-9922","mu":{"Hf":-12.105,"S":-4.028},"dmu":{"Hf":-4.705,"S":-0.028}},{"m":"HfZrS6","c":"t","s":3,"d":0,"e":["Hf","Zr","S"],"bg":1.09,"cs":"Monoclinic","sg":"Pm","ns":8,"mp":"mp-1224121","url":"https://next-gen.materialsproject.org/materials/mp-1224121","mu":{"Hf":-12.186,"Zr":-10.665,"S":-4.001},"dmu":{"Hf":-4.786,"Zr":-4.795,"S":-0.001}},{"m":"ICl3","c":"t","s":3,"d":0,"e":["I","Cl"],"bg":1.57,"cs":"Triclinic","sg":"P-1","ns":8,"mp":"mp-1546049","url":"https://next-gen.materialsproject.org/materials/mp-1546049","mu":{"I":-1.971,"Cl":-1.756},"dmu":{"I":-0.441,"Cl":-0.126}},{"m":"In2AsP","c":"t","s":3,"d":0,"e":["In","As","P"],"bg":1.33,"cs":"Tetragonal","sg":"P-4m2","ns":4,"mp":"mp-1223851","url":"https://next-gen.materialsproject.org/materials/mp-1223851","mu":{"In":-2.723,"As":-5.107,"P":-5.641},"dmu":{"In":-0.413,"As":-0.047,"P":-0.001}},{"m":"In2O3","c":"t","s":3,"d":0,"e":["In","O"],"bg":0.63,"cs":"Cubic","sg":"Ia-3","ns":40,"mp":"mp-22598","url":"https://next-gen.materialsproject.org/materials/mp-22598","mu":{"In":-4.292,"O":-6.052},"dmu":{"In":-1.982,"O":-1.322}},{"m":"InBr","c":"t","s":3,"d":0,"e":["In","Br"],"bg":2.05,"cs":"orthorhombic","sg":"Cmcm","ns":4,"mp":"mp-22929","url":"https://next-gen.materialsproject.org/materials/mp-22929","mu":{"In":-2.447,"Br":-2.668},"dmu":{"In":-0.137,"Br":-1.208}},{"m":"InCl","c":"t","s":3,"d":0,"e":["In","Cl"],"bg":2.35,"cs":"orthorhombic","sg":"Cmcm","ns":4,"mp":"mp-22928","url":"https://next-gen.materialsproject.org/materials/mp-22928","mu":{"In":-2.392,"Cl":-3.177},"dmu":{"In":-0.082,"Cl":-1.547}},{"m":"InGaAs2","c":"t","s":3,"d":0,"e":["In","Ga","As"],"bg":1.28,"cs":"Tetragonal","sg":"P-4m2","ns":4,"mp":"mp-1223781","url":"https://next-gen.materialsproject.org/materials/mp-1223781","mu":{"In":-2.311,"Ga":-2.619,"As":-5.518},"dmu":{"In":-0.001,"Ga":-0.249,"As":-0.458}},{"m":"InGaO3","c":"t","s":3,"d":0,"e":["In","Ga","O"],"bg":1.34,"cs":"Hexagonal","sg":"P6_3/mmc","ns":10,"mp":"mp-8098","url":"https://next-gen.materialsproject.org/materials/mp-8098","mu":{"In":-2.311,"Ga":-3.051,"O":-7.372},"dmu":{"In":-0.001,"Ga":-0.681,"O":-2.642}},{"m":"InI","c":"t","s":3,"d":0,"e":["In","I"],"bg":1.95,"cs":"orthorhombic","sg":"Cmcm","ns":4,"mp":"mp-22926","url":"https://next-gen.materialsproject.org/materials/mp-22926","mu":{"In":-2.474,"I":-2.301},"dmu":{"In":-0.164,"I":-0.771}},{"m":"InSnBr3","c":"t","s":3,"d":0,"e":["In","Sn","Br"],"bg":1.75,"cs":"Trigonal","sg":"R3c","ns":10,"mp":"mp-998555","url":"https://next-gen.materialsproject.org/materials/mp-998555","mu":{"In":-2.544,"Sn":-3.904,"Br":-2.577},"dmu":{"In":-0.234,"Sn":-0.114,"Br":-1.117}},{"m":"Ir2S3","c":"t","s":3,"d":0,"e":["Ir","S"],"bg":0.78,"cs":"Orthorhombic","sg":"Pbcn","ns":20,"mp":"mp-1188655","url":"https://next-gen.materialsproject.org/materials/mp-1188655","mu":{"Ir":-5.986,"S":-4.593},"dmu":{"Ir":-0.026,"S":-0.593}},{"m":"K2PdCl4","c":"t","s":3,"d":0,"e":["K","Pd","Cl"],"bg":1.43,"cs":"Tetragonal","sg":"P4/mmm","ns":7,"mp":"mp-22956","url":"https://next-gen.materialsproject.org/materials/mp-22956","mu":{"K":-4.225,"Pd":-3.606,"Cl":-2.204},"dmu":{"K":-3.425,"Pd":-0.486,"Cl":-0.574}},{"m":"K2PdO2","c":"t","s":3,"d":0,"e":["K","Pd","O"],"bg":1.37,"cs":"Orthorhombic","sg":"Immm","ns":5,"mp":"mp-540584","url":"https://next-gen.materialsproject.org/materials/mp-540584","mu":{"K":-1.587,"Pd":-3.407,"O":-6.358},"dmu":{"K":-0.787,"Pd":-0.287,"O":-1.628}},{"m":"K2PtS2","c":"t","s":3,"d":0,"e":["K","Pt","S"],"bg":1.24,"cs":"Orthorhombic","sg":"Immm","ns":5,"mp":"mp-7928","url":"https://next-gen.materialsproject.org/materials/mp-7928","mu":{"K":-2.191,"Pt":-4.505,"S":-4.666},"dmu":{"K":-1.391,"Pt":-0.555,"S":-0.666}},{"m":"K2Rb2I2O","c":"t","s":3,"d":0,"e":["K","Rb","I","O"],"bg":1.68,"cs":"Tetragonal","sg":"I4/mmm","ns":7,"mp":"mp-3202851","url":"https://next-gen.materialsproject.org/materials/mp-3202851","mu":{"K":-1.607,"Rb":-1.429,"I":-4.211,"O":-6.886},"dmu":{"K":-0.807,"Rb":-0.749,"I":-2.681,"O":-2.156}},{"m":"K2S3","c":"t","s":3,"d":0,"e":["K","S"],"bg":1.29,"cs":"Orthorhombic","sg":"Cmc2_1","ns":10,"mp":"mp-7667","url":"https://next-gen.materialsproject.org/materials/mp-7667","mu":{"K":-2.553,"S":-4.15},"dmu":{"K":-1.753,"S":-0.15}},{"m":"K2SeBr6","c":"t","s":3,"d":0,"e":["K","Se","Br"],"bg":1.7,"cs":"Cubic","sg":"Fm-3m","ns":9,"mp":"mp-23036","url":"https://next-gen.materialsproject.org/materials/mp-23036","mu":{"K":-4.282,"Se":-3.99,"Br":-1.571},"dmu":{"K":-3.482,"Se":-0.44,"Br":-0.111}},{"m":"K2SiAs2","c":"t","s":3,"d":0,"e":["K","Si","As"],"bg":1.0,"cs":"Orthorhombic","sg":"Ibam","ns":10,"mp":"mp-6984","url":"https://next-gen.materialsproject.org/materials/mp-6984","mu":{"K":-1.246,"Si":-5.207,"As":-5.641},"dmu":{"K":-0.446,"Si":-0.217,"As":-0.581}},{"m":"K2SiP2","c":"t","s":3,"d":0,"e":["K","Si","P"],"bg":1.21,"cs":"Orthorhombic","sg":"Ibam","ns":10,"mp":"mp-8235","url":"https://next-gen.materialsproject.org/materials/mp-8235","mu":{"K":-1.219,"Si":-5.353,"P":-6.252},"dmu":{"K":-0.419,"Si":-0.363,"P":-0.612}},{"m":"K4I2O","c":"t","s":3,"d":0,"e":["K","I","O"],"bg":1.02,"cs":"Tetragonal","sg":"I4/mmm","ns":7,"mp":"mp-768368","url":"https://next-gen.materialsproject.org/materials/mp-768368","mu":{"K":-1.366,"I":-4.001,"O":-6.845},"dmu":{"K":-0.566,"I":-2.471,"O":-2.115}},{"m":"K4ZnP2","c":"t","s":3,"d":0,"e":["K","Zn","P"],"bg":0.95,"cs":"Trigonal","sg":"R-3m","ns":7,"mp":"mp-11719","url":"https://next-gen.materialsproject.org/materials/mp-11719","mu":{"K":-0.897,"Zn":-1.354,"P":-6.581},"dmu":{"K":-0.097,"Zn":-0.514,"P":-0.941}},{"m":"KAlTe2","c":"t","s":3,"d":0,"e":["K","Al","Te"],"bg":2.24,"cs":"Monoclinic","sg":"C2/c","ns":32,"mp":"mp-18347","url":"https://next-gen.materialsproject.org/materials/mp-18347","mu":{"K":-2.534,"Al":-3.864,"Te":-3.55},"dmu":{"K":-1.734,"Al":-0.844,"Te":-0.3}},{"m":"KAuO2","c":"t","s":3,"d":0,"e":["K","Au","O"],"bg":1.43,"cs":"Orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-997002","url":"https://next-gen.materialsproject.org/materials/mp-997002","mu":{"K":-2.947,"Au":-2.454,"O":-5.158},"dmu":{"K":-2.147,"Au":-0.224,"O":-0.428}},{"m":"KBiS2","c":"t","s":3,"d":0,"e":["K","Bi","S"],"bg":1.42,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-1223443","url":"https://next-gen.materialsproject.org/materials/mp-1223443","mu":{"K":-2.572,"Bi":-5.15,"S":-4.319},"dmu":{"K":-1.772,"Bi":-0.76,"S":-0.319}},{"m":"KCrS2","c":"t","s":3,"d":0,"e":["K","Cr","S"],"bg":1.16,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-4026","url":"https://next-gen.materialsproject.org/materials/mp-4026","mu":{"K":-2.12,"Cr":-8.051,"S":-4.798},"dmu":{"K":-1.32,"Cr":-0.831,"S":-0.798}},{"m":"KLaTe2","c":"t","s":3,"d":0,"e":["K","La","Te"],"bg":1.7,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-11739","url":"https://next-gen.materialsproject.org/materials/mp-11739","mu":{"K":-2.139,"La":-6.602,"Te":-4.098},"dmu":{"K":-1.339,"La":-2.942,"Te":-0.848}},{"m":"KLiZn3O4","c":"t","s":3,"d":0,"e":["K","Li","Zn","O"],"bg":1.64,"cs":"Monoclinic","sg":"Cm","ns":9,"mp":"mp-1223469","url":"https://next-gen.materialsproject.org/materials/mp-1223469","mu":{"K":-1.955,"Li":-3.643,"Zn":-2.102,"O":-6.396},"dmu":{"K":-1.155,"Li":-1.993,"Zn":-1.262,"O":-1.666}},{"m":"KMgAs","c":"t","s":3,"d":0,"e":["K","Mg","As"],"bg":1.16,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-1019089","url":"https://next-gen.materialsproject.org/materials/mp-1019089","mu":{"K":-1.176,"Mg":-1.723,"As":-6.001},"dmu":{"K":-0.376,"Mg":-0.733,"As":-0.941}},{"m":"KMgSb","c":"t","s":3,"d":0,"e":["K","Mg","Sb"],"bg":1.27,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-7089","url":"https://next-gen.materialsproject.org/materials/mp-7089","mu":{"K":-1.363,"Mg":-1.533,"Sb":-4.944},"dmu":{"K":-0.563,"Mg":-0.543,"Sb":-0.654}},{"m":"KMnF3","c":"t","s":3,"d":0,"e":["K","Mn","F"],"bg":2.41,"cs":"Orthorhombic","sg":"Imma","ns":10,"mp":"mp-1205353","url":"https://next-gen.materialsproject.org/materials/mp-1205353","mu":{"K":-3.793,"Mn":-8.219,"F":-4.315},"dmu":{"K":-2.993,"Mn":-1.219,"F":-2.615}},{"m":"KNaZnO2","c":"t","s":3,"d":0,"e":["K","Na","Zn","O"],"bg":1.78,"cs":"Monoclinic","sg":"C2/c","ns":10,"mp":"mp-557183","url":"https://next-gen.materialsproject.org/materials/mp-557183","mu":{"K":-1.606,"Na":-2.024,"Zn":-2.064,"O":-6.636},"dmu":{"K":-0.806,"Na":-0.964,"Zn":-1.224,"O":-1.906}},{"m":"KNbO3","c":"t","s":3,"d":0,"e":["K","Nb","O"],"bg":2.29,"cs":"Trigonal","sg":"R3m","ns":5,"mp":"mp-7375","url":"https://next-gen.materialsproject.org/materials/mp-7375","mu":{"K":-2.032,"Nb":-11.06,"O":-6.938},"dmu":{"K":-1.232,"Nb":-4.37,"O":-2.208}},{"m":"KPS3","c":"t","s":3,"d":0,"e":["K","P","S"],"bg":1.72,"cs":"Orthorhombic","sg":"Immm","ns":10,"mp":"mp-8267","url":"https://next-gen.materialsproject.org/materials/mp-8267","mu":{"K":-3.366,"P":-6.032,"S":-4.117},"dmu":{"K":-2.566,"P":-0.392,"S":-0.117}},{"m":"KRbP3","c":"t","s":3,"d":0,"e":["K","Rb","P"],"bg":1.16,"cs":"Orthorhombic","sg":"Fmmm","ns":10,"mp":"mp-3200735","url":"https://next-gen.materialsproject.org/materials/mp-3200735","mu":{"K":-1.351,"Rb":-1.221,"P":-6.002},"dmu":{"K":-0.551,"Rb":-0.541,"P":-0.362}},{"m":"KSbS2","c":"t","s":3,"d":0,"e":["K","Sb","S"],"bg":1.6,"cs":"Monoclinic","sg":"C2/c","ns":8,"mp":"mp-11703","url":"https://next-gen.materialsproject.org/materials/mp-11703","mu":{"K":-2.812,"Sb":-4.801,"S":-4.219},"dmu":{"K":-2.012,"Sb":-0.511,"S":-0.219}},{"m":"KTiIrSe4","c":"t","s":3,"d":0,"e":["K","Ti","Ir","Se"],"bg":0.99,"cs":"Monoclinic","sg":"Cm","ns":7,"mp":"mp-3202411","url":"https://next-gen.materialsproject.org/materials/mp-3202411","mu":{"K":-2.701,"Ti":-8.598,"Ir":-6.846,"Se":-4.01},"dmu":{"K":-1.901,"Ti":-3.078,"Ir":-0.886,"Se":-0.46}},{"m":"KYTe2","c":"t","s":3,"d":0,"e":["K","Y","Te"],"bg":1.3,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-16763","url":"https://next-gen.materialsproject.org/materials/mp-16763","mu":{"K":-1.966,"Y":-6.953,"Te":-4.412},"dmu":{"K":-1.166,"Y":-2.143,"Te":-1.162}},{"m":"La2Mn(TeO)2","c":"t","s":3,"d":0,"e":["La","Mn","Te","O"],"bg":1.2,"cs":"Tetragonal","sg":"P-4m2","ns":7,"mp":"mp-3246341","url":"https://next-gen.materialsproject.org/materials/mp-3246341","mu":{"La":-8.623,"Mn":-7.941,"Te":-3.751,"O":-7.57},"dmu":{"La":-4.963,"Mn":-0.941,"Te":-0.501,"O":-2.84}},{"m":"LaAgSO","c":"t","s":3,"d":0,"e":["La","Ag","S","O"],"bg":1.36,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-6625","url":"https://next-gen.materialsproject.org/materials/mp-6625","mu":{"La":-9.424,"Ag":-0.913,"S":-4.017,"O":-6.918},"dmu":{"La":-5.764,"Ag":-0.083,"S":-0.017,"O":-2.188}},{"m":"LaCoO3","c":"t","s":3,"d":0,"e":["La","Co","O"],"bg":0.95,"cs":"Trigonal","sg":"R-3","ns":10,"mp":"mp-1288145","url":"https://next-gen.materialsproject.org/materials/mp-1288145","mu":{"La":-12.092,"Co":-5.039,"O":-4.933},"dmu":{"La":-8.432,"Co":-0.289,"O":-0.203}},{"m":"LaCuSO","c":"t","s":3,"d":0,"e":["La","Cu","S","O"],"bg":1.67,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-6088","url":"https://next-gen.materialsproject.org/materials/mp-6088","mu":{"La":-8.937,"Cu":-2.024,"S":-4.387,"O":-7.247},"dmu":{"La":-5.277,"Cu":-0.054,"S":-0.387,"O":-2.517}},{"m":"LaSeF","c":"t","s":3,"d":0,"e":["La","Se","F"],"bg":1.73,"cs":"Hexagonal","sg":"P6_3/mmc","ns":6,"mp":"mp-7738","url":"https://next-gen.materialsproject.org/materials/mp-7738","mu":{"La":-7.172,"Se":-4.632,"F":-6.084},"dmu":{"La":-3.512,"Se":-1.082,"F":-4.384}},{"m":"Li2FeIO6","c":"t","s":3,"d":0,"e":["Li","Fe","I","O"],"bg":1.39,"cs":"Trigonal","sg":"R3","ns":10,"mp":"mp-3208102","url":"https://next-gen.materialsproject.org/materials/mp-3208102","mu":{"Li":-5.308,"Fe":-8.584,"I":-4.621,"O":-5.119},"dmu":{"Li":-3.658,"Fe":-2.434,"I":-3.091,"O":-0.389}},{"m":"Li2PdO2","c":"t","s":3,"d":0,"e":["Li","Pd","O"],"bg":1.2,"cs":"Orthorhombic","sg":"Immm","ns":5,"mp":"mp-7608","url":"https://next-gen.materialsproject.org/materials/mp-7608","mu":{"Li":-3.93,"Pd":-3.238,"O":-5.788},"dmu":{"Li":-2.28,"Pd":-0.118,"O":-1.058}},{"m":"Li2PtO2","c":"t","s":3,"d":0,"e":["Li","Pt","O"],"bg":1.53,"cs":"Orthorhombic","sg":"Immm","ns":5,"mp":"mp-1177862","url":"https://next-gen.materialsproject.org/materials/mp-1177862","mu":{"Li":-3.782,"Pt":-3.951,"O":-5.989},"dmu":{"Li":-2.132,"Pt":-0.001,"O":-1.259}},{"m":"Li2ZrN2","c":"t","s":3,"d":0,"e":["Li","Zr","N"],"bg":1.56,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3216","url":"https://next-gen.materialsproject.org/materials/mp-3216","mu":{"Li":-2.128,"Zr":-9.069,"N":-9.193},"dmu":{"Li":-0.478,"Zr":-3.199,"N":-0.683}},{"m":"Li3AlP2","c":"t","s":3,"d":0,"e":["Li","Al","P"],"bg":1.69,"cs":"Tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3328172","url":"https://next-gen.materialsproject.org/materials/mp-3328172","mu":{"Li":-2.347,"Al":-3.543,"P":-6.339},"dmu":{"Li":-0.697,"Al":-0.523,"P":-0.699}},{"m":"Li3GaP2","c":"t","s":3,"d":0,"e":["Li","Ga","P"],"bg":1.46,"cs":"Tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3201200","url":"https://next-gen.materialsproject.org/materials/mp-3201200","mu":{"Li":-2.422,"Ga":-2.718,"P":-6.113},"dmu":{"Li":-0.772,"Ga":-0.348,"P":-0.473}},{"m":"Li3InAs2","c":"t","s":3,"d":0,"e":["Li","In","As"],"bg":0.92,"cs":"Tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3202110","url":"https://next-gen.materialsproject.org/materials/mp-3202110","mu":{"Li":-2.518,"In":-2.522,"As":-5.307},"dmu":{"Li":-0.868,"In":-0.212,"As":-0.247}},{"m":"Li3InP2","c":"t","s":3,"d":0,"e":["Li","In","P"],"bg":1.5,"cs":"Tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3202536","url":"https://next-gen.materialsproject.org/materials/mp-3202536","mu":{"Li":-2.482,"In":-2.429,"P":-5.935},"dmu":{"Li":-0.832,"In":-0.119,"P":-0.295}},{"m":"LiAuO2","c":"t","s":3,"d":0,"e":["Li","Au","O"],"bg":1.53,"cs":"Tetragonal","sg":"I4_122","ns":8,"mp":"mp-996959","url":"https://next-gen.materialsproject.org/materials/mp-996959","mu":{"Li":-4.842,"Au":-2.395,"O":-4.841},"dmu":{"Li":-3.192,"Au":-0.165,"O":-0.111}},{"m":"LiGaTe2","c":"t","s":3,"d":0,"e":["Li","Ga","Te"],"bg":1.59,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-5048","url":"https://next-gen.materialsproject.org/materials/mp-5048","mu":{"Li":-3.241,"Ga":-3.048,"Te":-3.375},"dmu":{"Li":-1.591,"Ga":-0.678,"Te":-0.125}},{"m":"LiInSe2","c":"t","s":3,"d":0,"e":["Li","In","Se"],"bg":1.57,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-20187","url":"https://next-gen.materialsproject.org/materials/mp-20187","mu":{"Li":-3.408,"In":-2.982,"Se":-4.078},"dmu":{"Li":-1.758,"In":-0.672,"Se":-0.528}},{"m":"LiInTe2","c":"t","s":3,"d":0,"e":["Li","In","Te"],"bg":1.39,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-20782","url":"https://next-gen.materialsproject.org/materials/mp-20782","mu":{"Li":-3.158,"In":-2.706,"Te":-3.556},"dmu":{"Li":-1.508,"In":-0.396,"Te":-0.306}},{"m":"LiMgAs","c":"t","s":3,"d":0,"e":["Li","Mg","As"],"bg":1.37,"cs":"Cubic","sg":"F-43m","ns":3,"mp":"mp-12558","url":"https://next-gen.materialsproject.org/materials/mp-12558","mu":{"Li":-2.517,"Mg":-1.778,"As":-5.641},"dmu":{"Li":-0.867,"Mg":-0.788,"As":-0.581}},{"m":"LiMgP","c":"t","s":3,"d":0,"e":["Li","Mg","P"],"bg":1.71,"cs":"Cubic","sg":"F-43m","ns":3,"mp":"mp-36111","url":"https://next-gen.materialsproject.org/materials/mp-36111","mu":{"Li":-2.457,"Mg":-1.783,"P":-6.329},"dmu":{"Li":-0.807,"Mg":-0.793,"P":-0.689}},{"m":"LiMgSb","c":"t","s":3,"d":0,"e":["Li","Mg","Sb"],"bg":1.44,"cs":"Cubic","sg":"F-43m","ns":3,"mp":"mp-1207082","url":"https://next-gen.materialsproject.org/materials/mp-1207082","mu":{"Li":-2.431,"Mg":-1.372,"Sb":-4.816},"dmu":{"Li":-0.781,"Mg":-0.382,"Sb":-0.526}},{"m":"LiRhO2","c":"t","s":3,"d":0,"e":["Li","Rh","O"],"bg":1.51,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-14115","url":"https://next-gen.materialsproject.org/materials/mp-14115","mu":{"Li":-4.159,"Rh":-4.82,"O":-5.872},"dmu":{"Li":-2.509,"Rh":-0.06,"O":-1.142}},{"m":"LiSbS","c":"t","s":3,"d":0,"e":["Li","Sb","S"],"bg":0.39,"cs":"Triclinic","sg":"P1","ns":6,"mp":"mp-756006","url":"https://next-gen.materialsproject.org/materials/mp-756006","mu":{"Li":-3.432,"Sb":-4.291,"S":-4.451},"dmu":{"Li":-1.782,"Sb":-0.001,"S":-0.451}},{"m":"LiSnN","c":"t","s":3,"d":0,"e":["Li","Sn","N"],"bg":1.16,"cs":"Hexagonal","sg":"P6_3mc","ns":6,"mp":"mp-1245983","url":"https://next-gen.materialsproject.org/materials/mp-1245983","mu":{"Li":-2.303,"Sn":-3.791,"N":-8.511},"dmu":{"Li":-0.653,"Sn":-0.001,"N":-0.001}},{"m":"Mg(InTe2)2","c":"t","s":3,"d":0,"e":["Mg","In","Te"],"bg":1.48,"cs":"Tetragonal","sg":"I-4","ns":7,"mp":"mp-1222182","url":"https://next-gen.materialsproject.org/materials/mp-1222182","mu":{"Mg":-2.571,"In":-2.768,"Te":-3.475},"dmu":{"Mg":-1.581,"In":-0.458,"Te":-0.225}},{"m":"Mg2Ga2S5","c":"t","s":3,"d":0,"e":["Mg","Ga","S"],"bg":1.16,"cs":"Trigonal","sg":"P-3m1","ns":9,"mp":"mp-1206963","url":"https://next-gen.materialsproject.org/materials/mp-1206963","mu":{"Mg":-3.006,"Ga":-2.838,"S":-4.838},"dmu":{"Mg":-2.016,"Ga":-0.468,"S":-0.838}},{"m":"Mg3SbN","c":"t","s":3,"d":0,"e":["Mg","Sb","N"],"bg":1.62,"cs":"Cubic","sg":"Pm-3m","ns":5,"mp":"mp-1080847","url":"https://next-gen.materialsproject.org/materials/mp-1080847","mu":{"Mg":-1.354,"Sb":-4.803,"N":-9.977},"dmu":{"Mg":-0.364,"Sb":-0.513,"N":-1.467}},{"m":"Mg6Bi2PN","c":"t","s":3,"d":0,"e":["Mg","Bi","P","N"],"bg":0.91,"cs":"Cubic","sg":"Fm-3m","ns":10,"mp":"mp-989522","url":"https://next-gen.materialsproject.org/materials/mp-989522","mu":{"Mg":-1.169,"Bi":-4.621,"P":-7.05,"N":-10.131},"dmu":{"Mg":-0.179,"Bi":-0.231,"P":-1.41,"N":-1.621}},{"m":"MgGeP2","c":"t","s":3,"d":0,"e":["Mg","Ge","P"],"bg":1.5,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-34903","url":"https://next-gen.materialsproject.org/materials/mp-34903","mu":{"Mg":-2.018,"Ge":-4.141,"P":-5.767},"dmu":{"Mg":-1.028,"Ge":-0.001,"P":-0.127}},{"m":"MgS2","c":"t","s":3,"d":0,"e":["Mg","S"],"bg":1.13,"cs":"Trigonal","sg":"R-3m","ns":6,"mp":"mp-1185959","url":"https://next-gen.materialsproject.org/materials/mp-1185959","mu":{"Mg":-3.843,"S":-4.001},"dmu":{"Mg":-2.853,"S":-0.001}},{"m":"MgSe","c":"t","s":3,"d":0,"e":["Mg","Se"],"bg":2.47,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1782","url":"https://next-gen.materialsproject.org/materials/mp-1782","mu":{"Mg":-2.251,"Se":-4.798},"dmu":{"Mg":-1.261,"Se":-1.248}},{"m":"MgSiAs2","c":"t","s":3,"d":0,"e":["Mg","Si","As"],"bg":1.3,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-1016197","url":"https://next-gen.materialsproject.org/materials/mp-1016197","mu":{"Mg":-1.987,"Si":-5.072,"As":-5.143},"dmu":{"Mg":-0.997,"Si":-0.082,"As":-0.083}},{"m":"MgSiP2","c":"t","s":3,"d":0,"e":["Mg","Si","P"],"bg":1.37,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-2961","url":"https://next-gen.materialsproject.org/materials/mp-2961","mu":{"Mg":-2.111,"Si":-5.157,"P":-5.838},"dmu":{"Mg":-1.121,"Si":-0.167,"P":-0.198}},{"m":"MgSnP2","c":"t","s":3,"d":0,"e":["Mg","Sn","P"],"bg":1.21,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-1009083","url":"https://next-gen.materialsproject.org/materials/mp-1009083","mu":{"Mg":-2.018,"Sn":-3.791,"P":-5.767},"dmu":{"Mg":-1.028,"Sn":-0.001,"P":-0.127}},{"m":"MnBr2","c":"t","s":3,"d":0,"e":["Mn","Br"],"bg":1.6,"cs":"Trigonal","sg":"P-3m1","ns":3,"mp":"mp-28306","url":"https://next-gen.materialsproject.org/materials/mp-28306","mu":{"Mn":-8.221,"Br":-2.071},"dmu":{"Mn":-1.221,"Br":-0.611}},{"m":"MnCl2","c":"t","s":3,"d":0,"e":["Mn","Cl"],"bg":1.79,"cs":"Trigonal","sg":"R-3m","ns":3,"mp":"mp-28233","url":"https://next-gen.materialsproject.org/materials/mp-28233","mu":{"Mn":-8.63,"Cl":-2.445},"dmu":{"Mn":-1.63,"Cl":-0.815}},{"m":"MnI2","c":"t","s":3,"d":0,"e":["Mn","I"],"bg":1.17,"cs":"Trigonal","sg":"P-3m1","ns":3,"mp":"mp-28013","url":"https://next-gen.materialsproject.org/materials/mp-28013","mu":{"Mn":-7.682,"I":-1.871},"dmu":{"Mn":-0.682,"I":-0.341}},{"m":"MnNbOF5","c":"t","s":3,"d":0,"e":["Mn","Nb","O","F"],"bg":1.5,"cs":"Triclinic","sg":"P1","ns":8,"mp":"mp-3201750","url":"https://next-gen.materialsproject.org/materials/mp-3201750","mu":{"Mn":-9.817,"Nb":-11.738,"O":-7.341,"F":-4.682},"dmu":{"Mn":-2.817,"Nb":-5.048,"O":-2.611,"F":-2.982}},{"m":"MnO","c":"t","s":3,"d":0,"e":["Mn","O"],"bg":1.6,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-19306","url":"https://next-gen.materialsproject.org/materials/mp-19306","mu":{"Mn":-7.001,"O":-6.381},"dmu":{"Mn":-0.001,"O":-1.651}},{"m":"MnPtBr6","c":"t","s":3,"d":0,"e":["Mn","Pt","Br"],"bg":1.05,"cs":"Monoclinic","sg":"C2","ns":8,"mp":"mp-3214600","url":"https://next-gen.materialsproject.org/materials/mp-3214600","mu":{"Mn":-10.056,"Pt":-5.133,"Br":-1.778},"dmu":{"Mn":-3.056,"Pt":-1.183,"Br":-0.318}},{"m":"Na2PtO2","c":"t","s":3,"d":0,"e":["Na","Pt","O"],"bg":1.46,"cs":"Orthorhombic","sg":"Immm","ns":5,"mp":"mp-22313","url":"https://next-gen.materialsproject.org/materials/mp-22313","mu":{"Na":-2.148,"Pt":-4.061,"O":-6.326},"dmu":{"Na":-1.088,"Pt":-0.111,"O":-1.596}},{"m":"Na2SiP2","c":"t","s":3,"d":0,"e":["Na","Si","P"],"bg":1.27,"cs":"Orthorhombic","sg":"Ibam","ns":10,"mp":"mp-3345042","url":"https://next-gen.materialsproject.org/materials/mp-3345042","mu":{"Na":-1.699,"Si":-5.134,"P":-5.768},"dmu":{"Na":-0.639,"Si":-0.144,"P":-0.128}},{"m":"Na3SbSe4","c":"t","s":3,"d":0,"e":["Na","Sb","Se"],"bg":0.99,"cs":"Cubic","sg":"I-43m","ns":8,"mp":"mp-8703","url":"https://next-gen.materialsproject.org/materials/mp-8703","mu":{"Na":-2.695,"Sb":-5.103,"Se":-3.586},"dmu":{"Na":-1.635,"Sb":-0.813,"Se":-0.036}},{"m":"NaAlTe2","c":"t","s":3,"d":0,"e":["Na","Al","Te"],"bg":1.29,"cs":"Tetragonal","sg":"I4/mcm","ns":8,"mp":"mp-10163","url":"https://next-gen.materialsproject.org/materials/mp-10163","mu":{"Na":-2.446,"Al":-3.783,"Te":-3.518},"dmu":{"Na":-1.386,"Al":-0.763,"Te":-0.268}},{"m":"NaBiO2","c":"t","s":3,"d":0,"e":["Na","Bi","O"],"bg":1.14,"cs":"Monoclinic","sg":"C2/c","ns":8,"mp":"mp-22984","url":"https://next-gen.materialsproject.org/materials/mp-22984","mu":{"Na":-2.625,"Bi":-5.254,"O":-6.271},"dmu":{"Na":-1.565,"Bi":-0.864,"O":-1.541}},{"m":"NaBiO3","c":"t","s":3,"d":0,"e":["Na","Bi","O"],"bg":1.1,"cs":"Trigonal","sg":"R-3","ns":10,"mp":"mp-23054","url":"https://next-gen.materialsproject.org/materials/mp-23054","mu":{"Na":-3.662,"Bi":-7.393,"O":-4.817},"dmu":{"Na":-2.602,"Bi":-3.003,"O":-0.087}},{"m":"NaCaAs","c":"t","s":3,"d":0,"e":["Na","Ca","As"],"bg":1.58,"cs":"Cubic","sg":"F-43m","ns":3,"mp":"mp-961685","url":"https://next-gen.materialsproject.org/materials/mp-961685","mu":{"Na":-1.239,"Ca":-2.745,"As":-6.35},"dmu":{"Na":-0.179,"Ca":-1.105,"As":-1.29}},{"m":"NaCo(PdO3)2","c":"t","s":3,"d":0,"e":["Na","Co","Pd","O"],"bg":1.39,"cs":"Monoclinic","sg":"C2","ns":10,"mp":"mp-3212364","url":"https://next-gen.materialsproject.org/materials/mp-3212364","mu":{"Na":-4.399,"Co":-6.327,"Pd":-4.903,"O":-5.127},"dmu":{"Na":-3.339,"Co":-1.577,"Pd":-1.783,"O":-0.397}},{"m":"NaInSe2","c":"t","s":3,"d":0,"e":["Na","In","Se"],"bg":1.02,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-22473","url":"https://next-gen.materialsproject.org/materials/mp-22473","mu":{"Na":-2.687,"In":-3.156,"Se":-3.902},"dmu":{"Na":-1.627,"In":-0.846,"Se":-0.352}},{"m":"NaLi2LaAs2","c":"t","s":3,"d":0,"e":["Na","Li","La","As"],"bg":0.95,"cs":"Trigonal","sg":"P-3m1","ns":6,"mp":"mp-3252342","url":"https://next-gen.materialsproject.org/materials/mp-3252342","mu":{"Na":-1.282,"Li":-2.325,"La":-5.794,"As":-6.055},"dmu":{"Na":-0.222,"Li":-0.675,"La":-2.134,"As":-0.995}},{"m":"NaLiZnSe2","c":"t","s":3,"d":0,"e":["Na","Li","Zn","Se"],"bg":1.76,"cs":"Trigonal","sg":"P3m1","ns":5,"mp":"mp-3202218","url":"https://next-gen.materialsproject.org/materials/mp-3202218","mu":{"Na":-2.383,"Li":-3.566,"Zn":-1.826,"Se":-4.385},"dmu":{"Na":-1.323,"Li":-1.916,"Zn":-0.986,"Se":-0.835}},{"m":"NaMgSb","c":"t","s":3,"d":0,"e":["Na","Mg","Sb"],"bg":1.04,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-7090","url":"https://next-gen.materialsproject.org/materials/mp-7090","mu":{"Na":-1.594,"Mg":-1.399,"Sb":-4.877},"dmu":{"Na":-0.534,"Mg":-0.409,"Sb":-0.587}},{"m":"NaNbO3","c":"t","s":3,"d":0,"e":["Na","Nb","O"],"bg":2.5,"cs":"Trigonal","sg":"R3c","ns":10,"mp":"mp-4514","url":"https://next-gen.materialsproject.org/materials/mp-4514","mu":{"Na":-2.951,"Nb":-10.647,"O":-6.838},"dmu":{"Na":-1.891,"Nb":-3.957,"O":-2.108}},{"m":"NaRhO2","c":"t","s":3,"d":0,"e":["Na","Rh","O"],"bg":1.38,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-8830","url":"https://next-gen.materialsproject.org/materials/mp-8830","mu":{"Na":-2.656,"Rh":-5.718,"O":-5.696},"dmu":{"Na":-1.596,"Rh":-0.958,"O":-0.966}},{"m":"NaS","c":"t","s":3,"d":0,"e":["Na","S"],"bg":1.24,"cs":"Hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-2400","url":"https://next-gen.materialsproject.org/materials/mp-2400","mu":{"Na":-2.611,"S":-4.104},"dmu":{"Na":-1.551,"S":-0.104}},{"m":"NaSbO2","c":"t","s":3,"d":0,"e":["Na","Sb","O"],"bg":1.47,"cs":"Monoclinic","sg":"C2/c","ns":8,"mp":"mp-754368","url":"https://next-gen.materialsproject.org/materials/mp-754368","mu":{"Na":-2.346,"Sb":-4.389,"O":-7.067},"dmu":{"Na":-1.286,"Sb":-0.099,"O":-2.337}},{"m":"NaSnN","c":"t","s":3,"d":0,"e":["Na","Sn","N"],"bg":0.92,"cs":"Hexagonal","sg":"P6_3mc","ns":6,"mp":"mp-12433","url":"https://next-gen.materialsproject.org/materials/mp-12433","mu":{"Na":-1.474,"Sn":-3.818,"N":-8.511},"dmu":{"Na":-0.414,"Sn":-0.028,"N":-0.001}},{"m":"NaSrP","c":"t","s":3,"d":0,"e":["Na","Sr","P"],"bg":1.24,"cs":"Hexagonal","sg":"P-62m","ns":9,"mp":"mp-13275","url":"https://next-gen.materialsproject.org/materials/mp-13275","mu":{"Na":-1.233,"Sr":-2.304,"P":-6.725},"dmu":{"Na":-0.173,"Sr":-1.134,"P":-1.085}},{"m":"NaTaN2","c":"t","s":3,"d":0,"e":["Na","Ta","N"],"bg":1.28,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-5475","url":"https://next-gen.materialsproject.org/materials/mp-5475","mu":{"Na":-1.457,"Ta":-11.113,"N":-8.97},"dmu":{"Na":-0.397,"Ta":-2.293,"N":-0.46}},{"m":"NaTiRhS4","c":"t","s":3,"d":0,"e":["Na","Ti","Rh","S"],"bg":1.16,"cs":"Monoclinic","sg":"Cm","ns":7,"mp":"mp-3202698","url":"https://next-gen.materialsproject.org/materials/mp-3202698","mu":{"Na":-3.051,"Ti":-9.124,"Rh":-6.111,"S":-4.441},"dmu":{"Na":-1.991,"Ti":-3.604,"Rh":-1.351,"S":-0.441}},{"m":"Nb(SBr)2","c":"t","s":3,"d":0,"e":["Nb","S","Br"],"bg":1.5,"cs":"Triclinic","sg":"P-1","ns":10,"mp":"mp-1079487","url":"https://next-gen.materialsproject.org/materials/mp-1079487","mu":{"Nb":-9.519,"S":-4.16,"Br":-2.01},"dmu":{"Nb":-2.829,"S":-0.16,"Br":-0.55}},{"m":"PdF3","c":"t","s":3,"d":0,"e":["Pd","F"],"bg":1.05,"cs":"Trigonal","sg":"R-3","ns":8,"mp":"mp-1524446","url":"https://next-gen.materialsproject.org/materials/mp-1524446","mu":{"Pd":-4.497,"F":-2.883},"dmu":{"Pd":-1.377,"F":-1.183}},{"m":"PtS2","c":"t","s":3,"d":0,"e":["Pt","S"],"bg":1.55,"cs":"Trigonal","sg":"P-3m1","ns":3,"mp":"mp-762","url":"https://next-gen.materialsproject.org/materials/mp-762","mu":{"Pt":-4.765,"S":-4.118},"dmu":{"Pt":-0.815,"S":-0.118}},{"m":"RbAuO2","c":"t","s":3,"d":0,"e":["Rb","Au","O"],"bg":1.46,"cs":"Orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-7472","url":"https://next-gen.materialsproject.org/materials/mp-7472","mu":{"Rb":-2.896,"Au":-2.528,"O":-5.061},"dmu":{"Rb":-2.216,"Au":-0.298,"O":-0.331}},{"m":"RbAuSe","c":"t","s":3,"d":0,"e":["Rb","Au","Se"],"bg":1.71,"cs":"Orthorhombic","sg":"Cmcm","ns":6,"mp":"mp-9731","url":"https://next-gen.materialsproject.org/materials/mp-9731","mu":{"Rb":-2.218,"Au":-2.418,"Se":-4.076},"dmu":{"Rb":-1.538,"Au":-0.188,"Se":-0.526}},{"m":"RbBiS2","c":"t","s":3,"d":0,"e":["Rb","Bi","S"],"bg":1.34,"cs":"Trigonal","sg":"R-3m","ns":4,"mp":"mp-30041","url":"https://next-gen.materialsproject.org/materials/mp-30041","mu":{"Rb":-2.259,"Bi":-4.944,"S":-4.468},"dmu":{"Rb":-1.579,"Bi":-0.554,"S":-0.468}},{"m":"RbCaAs","c":"t","s":3,"d":0,"e":["Rb","Ca","As"],"bg":1.3,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-9845","url":"https://next-gen.materialsproject.org/materials/mp-9845","mu":{"Rb":-0.822,"Ca":-2.954,"As":-6.139},"dmu":{"Rb":-0.142,"Ca":-1.314,"As":-1.079}},{"m":"RbCaSb","c":"t","s":3,"d":0,"e":["Rb","Ca","Sb"],"bg":1.5,"cs":"Tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-9846","url":"https://next-gen.materialsproject.org/materials/mp-9846","mu":{"Rb":-0.945,"Ca":-2.79,"Sb":-5.277},"dmu":{"Rb":-0.265,"Ca":-1.15,"Sb":-0.987}},{"m":"RbCuO2","c":"t","s":3,"d":0,"e":["Rb","Cu","O"],"bg":0.91,"cs":"Orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-7467","url":"https://next-gen.materialsproject.org/materials/mp-7467","mu":{"Rb":-2.413,"Cu":-2.859,"O":-5.45},"dmu":{"Rb":-1.733,"Cu":-0.889,"O":-0.72}},{"m":"RbInTe2","c":"t","s":3,"d":0,"e":["Rb","In","Te"],"bg":1.11,"cs":"Tetragonal","sg":"I4/mcm","ns":8,"mp":"mp-22255","url":"https://next-gen.materialsproject.org/materials/mp-22255","mu":{"Rb":-2.333,"In":-2.82,"Te":-3.574},"dmu":{"Rb":-1.653,"In":-0.51,"Te":-0.324}},{"m":"RbLi2LaBi2","c":"t","s":3,"d":0,"e":["Rb","Li","La","Bi"],"bg":1.02,"cs":"Trigonal","sg":"P-3m1","ns":6,"mp":"mp-3253603","url":"https://next-gen.materialsproject.org/materials/mp-3253603","mu":{"Rb":-0.829,"Li":-2.142,"La":-4.925,"Bi":-5.222},"dmu":{"Rb":-0.149,"Li":-0.492,"La":-1.265,"Bi":-0.832}},{"m":"RbLi2YSb2","c":"t","s":3,"d":0,"e":["Rb","Li","Y","Sb"],"bg":1.03,"cs":"Trigonal","sg":"P-3m1","ns":6,"mp":"mp-3203098","url":"https://next-gen.materialsproject.org/materials/mp-3203098","mu":{"Rb":-1.008,"Li":-2.213,"Y":-6.217,"Sb":-5.327},"dmu":{"Rb":-0.328,"Li":-0.563,"Y":-1.407,"Sb":-1.037}},{"m":"RbYTe2","c":"t","s":3,"d":0,"e":["Rb","Y","Te"],"bg":1.36,"cs":"Hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-16764","url":"https://next-gen.materialsproject.org/materials/mp-16764","mu":{"Rb":-1.796,"Y":-6.921,"Te":-4.421},"dmu":{"Rb":-1.116,"Y":-2.111,"Te":-1.171}},{"m":"Sb2S2O","c":"t","s":3,"d":0,"e":["Sb","S","O"],"bg":1.24,"cs":"Triclinic","sg":"P-1","ns":20,"mp":"mp-28711","url":"https://next-gen.materialsproject.org/materials/mp-28711","mu":{"Sb":-4.841,"S":-4.05,"O":-6.597},"dmu":{"Sb":-0.551,"S":-0.05,"O":-1.867}},{"m":"SbO2F","c":"t","s":3,"d":0,"e":["Sb","O","F"],"bg":1.33,"cs":"Monoclinic","sg":"Cc","ns":8,"mp":"mp-752561","url":"https://next-gen.materialsproject.org/materials/mp-752561","mu":{"Sb":-8.692,"O":-4.731,"F":-3.464},"dmu":{"Sb":-4.402,"O":-0.001,"F":-1.764}},{"m":"SbTeBr","c":"t","s":3,"d":0,"e":["Sb","Te","Br"],"bg":1.26,"cs":"Trigonal","sg":"P3m1","ns":3,"mp":"mp-3201630","url":"https://next-gen.materialsproject.org/materials/mp-3201630","mu":{"Sb":-4.711,"Te":-3.586,"Br":-2.689},"dmu":{"Sb":-0.421,"Te":-0.336,"Br":-1.229}},{"m":"SiPAu","c":"t","s":3,"d":0,"e":["Si","P","Au"],"bg":0.98,"cs":"Trigonal","sg":"R3m","ns":3,"mp":"mp-1207095","url":"https://next-gen.materialsproject.org/materials/mp-1207095","mu":{"Si":-5.174,"P":-5.877,"Au":-2.411},"dmu":{"Si":-0.184,"P":-0.237,"Au":-0.181}},{"m":"Sn(PS3)2","c":"t","s":3,"d":0,"e":["Sn","P","S"],"bg":1.19,"cs":"Trigonal","sg":"R3","ns":9,"mp":"mp-36381","url":"https://next-gen.materialsproject.org/materials/mp-36381","mu":{"Sn":-4.948,"P":-6.107,"S":-4.053},"dmu":{"Sn":-1.158,"P":-0.467,"S":-0.053}},{"m":"SnI2","c":"t","s":3,"d":0,"e":["Sn","I"],"bg":1.3,"cs":"monoclinic","sg":"P2_1/c","ns":12,"mp":"mp-27844","url":"https://next-gen.materialsproject.org/materials/mp-27844","mu":{"Sn":-4.332,"I":-1.999},"dmu":{"Sn":-0.542,"I":-0.469}},{"m":"Sr(AlTe2)2","c":"t","s":3,"d":0,"e":["Sr","Al","Te"],"bg":1.45,"cs":"Tetragonal","sg":"I422","ns":7,"mp":"mp-37091","url":"https://next-gen.materialsproject.org/materials/mp-37091","mu":{"Sr":-4.404,"Al":-3.707,"Te":-3.56},"dmu":{"Sr":-3.234,"Al":-0.687,"Te":-0.31}},{"m":"Sr(CaBi)2","c":"t","s":3,"d":0,"e":["Sr","Ca","Bi"],"bg":1.45,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3202377","url":"https://next-gen.materialsproject.org/materials/mp-3202377","mu":{"Sr":-2.22,"Ca":-2.594,"Bi":-5.039},"dmu":{"Sr":-1.05,"Ca":-0.954,"Bi":-0.649}},{"m":"Sr(CaSb)2","c":"t","s":3,"d":0,"e":["Sr","Ca","Sb"],"bg":1.6,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-3201798","url":"https://next-gen.materialsproject.org/materials/mp-3201798","mu":{"Sr":-2.035,"Ca":-2.42,"Sb":-5.812},"dmu":{"Sr":-0.865,"Ca":-0.78,"Sb":-1.522}},{"m":"Sr(Li2P)2","c":"t","s":3,"d":0,"e":["Sr","Li","P"],"bg":0.98,"cs":"Trigonal","sg":"R-3m","ns":7,"mp":"mp-570097","url":"https://next-gen.materialsproject.org/materials/mp-570097","mu":{"Sr":-2.163,"Li":-2.073,"P":-7.205},"dmu":{"Sr":-0.993,"Li":-0.423,"P":-1.565}},{"m":"Sr(MgAs)2","c":"t","s":3,"d":0,"e":["Sr","Mg","As"],"bg":1.35,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-863260","url":"https://next-gen.materialsproject.org/materials/mp-863260","mu":{"Sr":-2.914,"Mg":-1.77,"As":-5.812},"dmu":{"Sr":-1.744,"Mg":-0.78,"As":-0.752}},{"m":"Sr(MgSb)2","c":"t","s":3,"d":0,"e":["Sr","Mg","Sb"],"bg":0.98,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-9566","url":"https://next-gen.materialsproject.org/materials/mp-9566","mu":{"Sr":-2.865,"Mg":-1.52,"Sb":-4.794},"dmu":{"Sr":-1.695,"Mg":-0.53,"Sb":-0.504}},{"m":"Sr2GaSbO6","c":"t","s":3,"d":0,"e":["Sr","Ga","Sb","O"],"bg":1.29,"cs":"Tetragonal","sg":"I4/m","ns":10,"mp":"mp-6304","url":"https://next-gen.materialsproject.org/materials/mp-6304","mu":{"Sr":-6.419,"Ga":-7.287,"Sb":-10.011,"O":-4.95},"dmu":{"Sr":-5.249,"Ga":-4.917,"Sb":-5.721,"O":-0.22}},{"m":"Sr2LiBrO6","c":"t","s":3,"d":0,"e":["Sr","Li","Br","O"],"bg":1.35,"cs":"Cubic","sg":"Fm-3m","ns":10,"mp":"mp-3206454","url":"https://next-gen.materialsproject.org/materials/mp-3206454","mu":{"Sr":-7.039,"Li":-5.267,"Br":-2.619,"O":-4.974},"dmu":{"Sr":-5.869,"Li":-3.617,"Br":-1.159,"O":-0.244}},{"m":"Sr2NbFeO6","c":"t","s":3,"d":0,"e":["Sr","Nb","Fe","O"],"bg":1.78,"cs":"Cubic","sg":"Fm-3m","ns":20,"mp":"mp-1218741","url":"https://next-gen.materialsproject.org/materials/mp-1218741","mu":{"Sr":-6.563,"Nb":-16.026,"Fe":-6.771,"O":-5.086},"dmu":{"Sr":-5.393,"Nb":-9.336,"Fe":-0.621,"O":-0.356}},{"m":"Sr4BiAsO","c":"t","s":3,"d":0,"e":["Sr","Bi","As","O"],"bg":1.47,"cs":"Tetragonal","sg":"I4mm","ns":7,"mp":"mp-3201589","url":"https://next-gen.materialsproject.org/materials/mp-3201589","mu":{"Sr":-2.126,"Bi":-5.509,"As":-6.706,"O":-9.601},"dmu":{"Sr":-0.956,"Bi":-1.119,"As":-1.646,"O":-4.871}},{"m":"SrAgSF","c":"t","s":3,"d":0,"e":["Sr","Ag","S","F"],"bg":1.25,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1078562","url":"https://next-gen.materialsproject.org/materials/mp-1078562","mu":{"Sr":-5.279,"Ag":-0.831,"S":-4.181,"F":-5.534},"dmu":{"Sr":-4.109,"Ag":-0.001,"S":-0.181,"F":-3.834}},{"m":"SrCuSF","c":"t","s":3,"d":0,"e":["Sr","Cu","S","F"],"bg":1.51,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-12444","url":"https://next-gen.materialsproject.org/materials/mp-12444","mu":{"Sr":-5.081,"Cu":-1.991,"S":-4.386,"F":-5.637},"dmu":{"Sr":-3.911,"Cu":-0.021,"S":-0.386,"F":-3.937}},{"m":"SrHfN2","c":"t","s":3,"d":0,"e":["Sr","Hf","N"],"bg":1.55,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1029396","url":"https://next-gen.materialsproject.org/materials/mp-1029396","mu":{"Sr":-1.946,"Hf":-10.6,"N":-9.344},"dmu":{"Sr":-0.776,"Hf":-3.2,"N":-0.834}},{"m":"SrLi2GeSe4","c":"t","s":3,"d":0,"e":["Sr","Li","Ge","Se"],"bg":1.68,"cs":"Tetragonal","sg":"I-42m","ns":8,"mp":"mp-3201325","url":"https://next-gen.materialsproject.org/materials/mp-3201325","mu":{"Sr":-5.438,"Li":-3.913,"Ge":-4.599,"Se":-3.895},"dmu":{"Sr":-4.268,"Li":-2.263,"Ge":-0.459,"Se":-0.345}},{"m":"SrLiP","c":"t","s":3,"d":0,"e":["Sr","Li","P"],"bg":1.34,"cs":"Hexagonal","sg":"P6_3/mmc","ns":6,"mp":"mp-13276","url":"https://next-gen.materialsproject.org/materials/mp-13276","mu":{"Sr":-1.916,"Li":-2.124,"P":-7.357},"dmu":{"Sr":-0.746,"Li":-0.474,"P":-1.717}},{"m":"SrMg2N2","c":"t","s":3,"d":0,"e":["Sr","Mg","N"],"bg":1.69,"cs":"Trigonal","sg":"P-3m1","ns":5,"mp":"mp-10550","url":"https://next-gen.materialsproject.org/materials/mp-10550","mu":{"Sr":-1.742,"Mg":-1.895,"N":-9.06},"dmu":{"Sr":-0.572,"Mg":-0.905,"N":-0.55}},{"m":"SrS2","c":"t","s":3,"d":0,"e":["Sr","S"],"bg":1.28,"cs":"Tetragonal","sg":"I4/mcm","ns":6,"mp":"mp-1950","url":"https://next-gen.materialsproject.org/materials/mp-1950","mu":{"Sr":-5.458,"S":-4.001},"dmu":{"Sr":-4.288,"S":-0.001}},{"m":"SrSnO3","c":"t","s":3,"d":0,"e":["Sr","Sn","O"],"bg":1.74,"cs":"Orthorhombic","sg":"Pnma","ns":20,"mp":"mp-2879","url":"https://next-gen.materialsproject.org/materials/mp-2879","mu":{"Sr":-5.64,"Sn":-6.099,"O":-6.182},"dmu":{"Sr":-4.47,"Sn":-2.309,"O":-1.452}},{"m":"SrTaNO2","c":"t","s":3,"d":0,"e":["Sr","Ta","N","O"],"bg":1.12,"cs":"Orthorhombic","sg":"Ama2","ns":20,"mp":"mp-2583419","url":"https://next-gen.materialsproject.org/materials/mp-2583419","mu":{"Sr":-3.165,"Ta":-10.934,"N":-9.013,"O":-8.442},"dmu":{"Sr":-1.995,"Ta":-2.114,"N":-0.503,"O":-3.712}},{"m":"SrTe","c":"t","s":3,"d":0,"e":["Sr","Te"],"bg":1.56,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1560","url":"https://next-gen.materialsproject.org/materials/mp-1560","mu":{"Sr":-2.914,"Te":-4.994},"dmu":{"Sr":-1.744,"Te":-1.744}},{"m":"SrZrN2","c":"t","s":3,"d":0,"e":["Sr","Zr","N"],"bg":1.23,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1029275","url":"https://next-gen.materialsproject.org/materials/mp-1029275","mu":{"Sr":-1.998,"Zr":-8.697,"N":-9.277},"dmu":{"Sr":-0.828,"Zr":-2.827,"N":-0.767}},{"m":"Ta(OF3)2","c":"t","s":3,"d":0,"e":["Ta","O","F"],"bg":1.15,"cs":"Triclinic","sg":"P-1","ns":9,"mp":"mp-3345715","url":"https://next-gen.materialsproject.org/materials/mp-3345715","mu":{"Ta":-23.878,"O":-5.24,"F":-2.72},"dmu":{"Ta":-15.058,"O":-0.51,"F":-1.02}},{"m":"TaCrOF5","c":"t","s":3,"d":0,"e":["Ta","Cr","O","F"],"bg":0.92,"cs":"Triclinic","sg":"P1","ns":8,"mp":"mp-3202394","url":"https://next-gen.materialsproject.org/materials/mp-3202394","mu":{"Ta":-14.029,"Cr":-9.324,"O":-7.76,"F":-4.839},"dmu":{"Ta":-5.209,"Cr":-2.104,"O":-3.03,"F":-3.139}},{"m":"TaFeOF5","c":"t","s":3,"d":0,"e":["Ta","Fe","O","F"],"bg":0.92,"cs":"Triclinic","sg":"P1","ns":8,"mp":"mp-3203126","url":"https://next-gen.materialsproject.org/materials/mp-3203126","mu":{"Ta":-16.892,"Fe":-7.937,"O":-6.768,"F":-4.389},"dmu":{"Ta":-8.072,"Fe":-1.787,"O":-2.038,"F":-2.689}},{"m":"TaVOF5","c":"t","s":3,"d":0,"e":["Ta","V","O","F"],"bg":1.0,"cs":"Triclinic","sg":"P1","ns":8,"mp":"mp-3201331","url":"https://next-gen.materialsproject.org/materials/mp-3201331","mu":{"Ta":-14.633,"V":-9.174,"O":-7.413,"F":-4.763},"dmu":{"Ta":-5.813,"V":-2.754,"O":-2.683,"F":-3.063}},{"m":"TeO3","c":"t","s":3,"d":0,"e":["Te","O"],"bg":2.16,"cs":"Monoclinic","sg":"C2/m","ns":16,"mp":"mp-1101301","url":"https://next-gen.materialsproject.org/materials/mp-1101301","mu":{"Te":-6.375,"O":-4.792},"dmu":{"Te":-3.125,"O":-0.062}},{"m":"TiSnO3","c":"t","s":3,"d":0,"e":["Ti","Sn","O"],"bg":1.11,"cs":"Trigonal","sg":"R-3","ns":10,"mp":"mp-754246","url":"https://next-gen.materialsproject.org/materials/mp-754246","mu":{"Ti":-9.74,"Sn":-3.91,"O":-7.189},"dmu":{"Ti":-4.22,"Sn":-0.12,"O":-2.459}},{"m":"VAgF6","c":"t","s":3,"d":0,"e":["V","Ag","F"],"bg":1.11,"cs":"Trigonal","sg":"R-3","ns":8,"mp":"mp-3337159","url":"https://next-gen.materialsproject.org/materials/mp-3337159","mu":{"V":-13.585,"Ag":-3.495,"F":-3.289},"dmu":{"V":-7.165,"Ag":-2.665,"F":-1.589}},{"m":"VBr2","c":"t","s":3,"d":0,"e":["V","Br"],"bg":1.13,"cs":"Trigonal","sg":"P-3m1","ns":3,"mp":"mp-971787","url":"https://next-gen.materialsproject.org/materials/mp-971787","mu":{"V":-7.143,"Br":-2.379},"dmu":{"V":-0.723,"Br":-0.919}},{"m":"VBrO","c":"t","s":3,"d":0,"e":["V","Br","O"],"bg":1.49,"cs":"Orthorhombic","sg":"Pmmn","ns":6,"mp":"mp-27841","url":"https://next-gen.materialsproject.org/materials/mp-27841","mu":{"V":-7.865,"Br":-2.018,"O":-6.194},"dmu":{"V":-1.445,"Br":-0.558,"O":-1.464}},{"m":"VCl2","c":"t","s":3,"d":0,"e":["V","Cl"],"bg":1.26,"cs":"Trigonal","sg":"P-3m1","ns":3,"mp":"mp-22877","url":"https://next-gen.materialsproject.org/materials/mp-22877","mu":{"V":-6.659,"Cl":-3.243},"dmu":{"V":-0.239,"Cl":-1.613}},{"m":"VClO","c":"t","s":3,"d":0,"e":["V","Cl","O"],"bg":1.67,"cs":"Orthorhombic","sg":"Pmmn","ns":6,"mp":"mp-23061","url":"https://next-gen.materialsproject.org/materials/mp-23061","mu":{"V":-6.897,"Cl":-3.124,"O":-6.818},"dmu":{"V":-0.477,"Cl":-1.494,"O":-2.088}},{"m":"VF3","c":"t","s":3,"d":0,"e":["V","F"],"bg":1.6,"cs":"Trigonal","sg":"R-3c","ns":8,"mp":"mp-559931","url":"https://next-gen.materialsproject.org/materials/mp-559931","mu":{"V":-8.791,"F":-4.178},"dmu":{"V":-2.371,"F":-2.478}},{"m":"VI2","c":"t","s":3,"d":0,"e":["V","I"],"bg":1.04,"cs":"Trigonal","sg":"P-3m1","ns":3,"mp":"mp-1018138","url":"https://next-gen.materialsproject.org/materials/mp-1018138","mu":{"V":-7.108,"I":-1.92},"dmu":{"V":-0.688,"I":-0.39}},{"m":"Y4Se3N2","c":"t","s":3,"d":0,"e":["Y","Se","N"],"bg":1.39,"cs":"Monoclinic","sg":"C2/m","ns":9,"mp":"mp-1029349","url":"https://next-gen.materialsproject.org/materials/mp-1029349","mu":{"Y":-7.024,"Se":-5.256,"N":-9.703},"dmu":{"Y":-2.214,"Se":-1.706,"N":-1.193}},{"m":"YZnAsO","c":"t","s":3,"d":0,"e":["Y","Zn","As","O"],"bg":1.2,"cs":"Tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-546011","url":"https://next-gen.materialsproject.org/materials/mp-546011","mu":{"Y":-7.661,"Zn":-0.915,"As":-5.332,"O":-8.77},"dmu":{"Y":-2.851,"Zn":-0.075,"As":-0.272,"O":-4.04}},{"m":"Zn(GaTe2)2","c":"t","s":3,"d":0,"e":["Zn","Ga","Te"],"bg":1.02,"cs":"Tetragonal","sg":"I-4","ns":7,"mp":"mp-15777","url":"https://next-gen.materialsproject.org/materials/mp-15777","mu":{"Zn":-1.768,"Ga":-3.063,"Te":-3.346},"dmu":{"Zn":-0.928,"Ga":-0.693,"Te":-0.096}},{"m":"Zn2SeS","c":"t","s":3,"d":0,"e":["Zn","Se","S"],"bg":1.49,"cs":"Tetragonal","sg":"P-4m2","ns":4,"mp":"mp-1215430","url":"https://next-gen.materialsproject.org/materials/mp-1215430","mu":{"Zn":-2.273,"Se":-3.551,"S":-4.193},"dmu":{"Zn":-1.433,"Se":-0.001,"S":-0.193}},{"m":"Zn2Si2As3P","c":"t","s":3,"d":0,"e":["Zn","Si","As","P"],"bg":1.18,"cs":"Monoclinic","sg":"C2","ns":8,"mp":"mp-1215555","url":"https://next-gen.materialsproject.org/materials/mp-1215555","mu":{"Zn":-1.34,"Si":-4.991,"As":-5.205,"P":-6.019},"dmu":{"Zn":-0.5,"Si":-0.001,"As":-0.145,"P":-0.379}},{"m":"Zn2Si2AsP3","c":"t","s":3,"d":0,"e":["Zn","Si","As","P"],"bg":1.29,"cs":"Monoclinic","sg":"C2","ns":8,"mp":"mp-1215549","url":"https://next-gen.materialsproject.org/materials/mp-1215549","mu":{"Zn":-1.34,"Si":-4.991,"As":-5.205,"P":-6.019},"dmu":{"Zn":-0.5,"Si":-0.001,"As":-0.145,"P":-0.379}},{"m":"Zn5Se4S","c":"t","s":3,"d":0,"e":["Zn","Se","S"],"bg":1.25,"cs":"Trigonal","sg":"R3m","ns":10,"mp":"mp-1215566","url":"https://next-gen.materialsproject.org/materials/mp-1215566","mu":{"Zn":-2.272,"Se":-3.551,"S":-4.193},"dmu":{"Zn":-1.432,"Se":-0.001,"S":-0.193}},{"m":"ZnGaPS","c":"t","s":3,"d":0,"e":["Zn","Ga","P","S"],"bg":1.67,"cs":"Trigonal","sg":"R3m","ns":4,"mp":"mp-1215443","url":"https://next-gen.materialsproject.org/materials/mp-1215443","mu":{"Zn":-1.161,"Ga":-2.371,"P":-6.461,"S":-5.304},"dmu":{"Zn":-0.321,"Ga":-0.001,"P":-0.821,"S":-1.304}},{"m":"ZnGeP2","c":"t","s":3,"d":0,"e":["Zn","Ge","P"],"bg":1.18,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-4524","url":"https://next-gen.materialsproject.org/materials/mp-4524","mu":{"Zn":-1.275,"Ge":-4.188,"P":-5.821},"dmu":{"Zn":-0.435,"Ge":-0.048,"P":-0.181}},{"m":"ZnInGaO4","c":"t","s":3,"d":0,"e":["Zn","In","Ga","O"],"bg":1.07,"cs":"Trigonal","sg":"R3m","ns":7,"mp":"mp-1215688","url":"https://next-gen.materialsproject.org/materials/mp-1215688","mu":{"Zn":-3.736,"In":-6.274,"Ga":-7.169,"O":-4.731},"dmu":{"Zn":-2.896,"In":-3.964,"Ga":-4.799,"O":-0.001}},{"m":"ZnSiAsP","c":"t","s":3,"d":0,"e":["Zn","Si","As","P"],"bg":1.21,"cs":"Orthorhombic","sg":"I2_12_12_1","ns":8,"mp":"mp-1215540","url":"https://next-gen.materialsproject.org/materials/mp-1215540","mu":{"Zn":-1.34,"Si":-4.991,"As":-5.205,"P":-6.019},"dmu":{"Zn":-0.5,"Si":-0.001,"As":-0.145,"P":-0.379}},{"m":"ZnSiP2","c":"t","s":3,"d":0,"e":["Zn","Si","P"],"bg":1.36,"cs":"Tetragonal","sg":"I-42d","ns":8,"mp":"mp-4763","url":"https://next-gen.materialsproject.org/materials/mp-4763","mu":{"Zn":-1.314,"Si":-5.258,"P":-5.898},"dmu":{"Zn":-0.474,"Si":-0.268,"P":-0.258}},{"m":"ZrBrN","c":"t","s":3,"d":0,"e":["Zr","Br","N"],"bg":1.44,"cs":"Trigonal","sg":"R-3m","ns":6,"mp":"mp-541912","url":"https://next-gen.materialsproject.org/materials/mp-541912","mu":{"Zr":-8.64,"Br":-2.698,"N":-9.32},"dmu":{"Zr":-2.77,"Br":-1.238,"N":-0.81}},{"m":"ZrCl2","c":"t","s":3,"d":0,"e":["Zr","Cl"],"bg":1.05,"cs":"Trigonal","sg":"R3m","ns":3,"mp":"mp-23162","url":"https://next-gen.materialsproject.org/materials/mp-23162","mu":{"Zr":-6.397,"Cl":-3.834},"dmu":{"Zr":-0.527,"Cl":-2.204}},{"m":"ZrIN","c":"t","s":3,"d":0,"e":["Zr","I","N"],"bg":1.22,"cs":"Orthorhombic","sg":"Pmmn","ns":6,"mp":"mp-23052","url":"https://next-gen.materialsproject.org/materials/mp-23052","mu":{"Zr":-8.893,"I":-2.124,"N":-9.017},"dmu":{"Zr":-3.023,"I":-0.594,"N":-0.507}},{"m":"ZrNCl","c":"t","s":3,"d":0,"e":["Zr","N","Cl"],"bg":1.75,"cs":"Trigonal","sg":"R-3m","ns":6,"mp":"mp-568592","url":"https://next-gen.materialsproject.org/materials/mp-568592","mu":{"Zr":-8.783,"N":-9.185,"Cl":-3.341},"dmu":{"Zr":-2.913,"N":-0.675,"Cl":-1.711}},{"m":"ZrS3","c":"t","s":3,"d":0,"e":["Zr","S"],"bg":1.11,"cs":"Monoclinic","sg":"P2_1/m","ns":8,"mp":"mp-9921","url":"https://next-gen.materialsproject.org/materials/mp-9921","mu":{"Zr":-10.286,"S":-4.127},"dmu":{"Zr":-4.416,"S":-0.127}},{"m":"ZrSnPt","c":"t","s":3,"d":0,"e":["Zr","Sn","Pt"],"bg":0.96,"cs":"Cubic","sg":"F-43m","ns":3,"mp":"mp-961713","url":"https://next-gen.materialsproject.org/materials/mp-961713","mu":{"Zr":-7.187,"Sn":-4.196,"Pt":-5.283},"dmu":{"Zr":-1.317,"Sn":-0.406,"Pt":-1.333}}];
+const D=[{"m":"Al2Te3","s":3,"d":0,"e":["Al","Te"],"bg":1.854,"cs":"monoclinic","sg":"P2_1/c","ns":40,"mp":"mp-29502","mu":{"Al":-3.579,"Te":-3.631},"dmu":{"Al":-0.559,"Te":-0.381}},{"m":"Al2Te5","s":3,"d":0,"e":["Al","Te"],"bg":1.046,"cs":"monoclinic","sg":"C2/m","ns":7,"mp":"mp-9254","mu":{"Al":-4.147,"Te":-3.255},"dmu":{"Al":-1.127,"Te":-0.005}},{"m":"Al4GaSb5","s":3,"d":0,"e":["Al","Ga","Sb"],"bg":0.986,"cs":"orthorhombic","sg":"Imm2","ns":10,"mp":"mp-1228691","mu":{"Al":-3.025,"Ga":-2.371,"Sb":-4.606},"dmu":{"Al":-0.005,"Ga":-0.001,"Sb":-0.316}},{"m":"AlAgO2","s":3,"d":0,"e":["Al","Ag","O"],"bg":1.409,"cs":"hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-9631","mu":{"Al":-10.334,"Ag":-0.951,"O":-4.942},"dmu":{"Al":-7.314,"Ag":-0.121,"O":-0.212}},{"m":"Ba(AlTe2)2","s":3,"d":0,"e":["Ba","Al","Te"],"bg":1.544,"cs":"tetragonal","sg":"P4/nbm","ns":14,"mp":"mp-28505","mu":{"Ba":-4.912,"Al":-3.742,"Te":-3.584},"dmu":{"Ba":-3.522,"Al":-0.722,"Te":-0.334}},{"m":"Ba(CaAs)2","s":3,"d":0,"e":["Ba","Ca","As"],"bg":1.789,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3202580","mu":{"Ba":-2.029,"Ca":-2.373,"As":-6.797},"dmu":{"Ba":-0.639,"Ca":-0.733,"As":-1.737}},{"m":"Ba(CaBi)2","s":3,"d":0,"e":["Ba","Ca","Bi"],"bg":1.473,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3201275","mu":{"Ba":-2.494,"Ca":-2.589,"Bi":-5.047},"dmu":{"Ba":-1.104,"Ca":-0.949,"Bi":-0.657}},{"m":"Ba(CaSb)2","s":3,"d":0,"e":["Ba","Ca","Sb"],"bg":1.559,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3202589","mu":{"Ba":-2.212,"Ca":-2.359,"Sb":-5.902},"dmu":{"Ba":-0.822,"Ca":-0.719,"Sb":-1.612}},{"m":"Ba(MgAs)2","s":3,"d":0,"e":["Ba","Mg","As"],"bg":1.069,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-8280","mu":{"Ba":-3.032,"Mg":-1.728,"As":-5.866},"dmu":{"Ba":-1.642,"Mg":-0.738,"As":-0.806}},{"m":"Ba(MgP)2","s":3,"d":0,"e":["Ba","Mg","P"],"bg":1.137,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-8278","mu":{"Ba":-2.657,"Mg":-1.582,"P":-6.744},"dmu":{"Ba":-1.267,"Mg":-0.592,"P":-1.104}},{"m":"Ba(SrSb)2","s":3,"d":0,"e":["Ba","Sr","Sb"],"bg":1.53,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3200923","mu":{"Ba":-2.218,"Sr":-1.926,"Sb":-5.857},"dmu":{"Ba":-0.828,"Sr":-0.756,"Sb":-1.567}},{"m":"Ba2CaAs2","s":3,"d":0,"e":["Ba","Ca","As"],"bg":1.295,"cs":"orthorhombic","sg":"Cmc2_1","ns":10,"mp":"mp-3215826","mu":{"Ba":-2.029,"Ca":-2.373,"As":-6.796},"dmu":{"Ba":-0.639,"Ca":-0.733,"As":-1.736}},{"m":"Ba2PCl","s":3,"d":0,"e":["Ba","P","Cl"],"bg":1.26,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-27869","mu":{"Ba":-2.102,"P":-7.177,"Cl":-5.331},"dmu":{"Ba":-0.712,"P":-1.537,"Cl":-3.701}},{"m":"Ba2Sc2O5","s":3,"d":0,"e":["Ba","Sc","O"],"bg":2.851,"cs":"orthorhombic","sg":"Pbam","ns":18,"mp":"mp-755950","mu":{"Ba":-3.607,"Sc":-9.505,"O":-7.521},"dmu":{"Ba":-2.217,"Sc":-4.875,"O":-2.791}},{"m":"Ba2Sr2As2O","s":3,"d":0,"e":["Ba","Sr","As","O"],"bg":0.952,"cs":"tetragonal","sg":"I4/mmm","ns":7,"mp":"mp-3202529","mu":{"Ba":-2.339,"Sr":-2.311,"As":-6.499,"O":-9.32},"dmu":{"Ba":-0.949,"Sr":-1.141,"As":-1.439,"O":-4.59}},{"m":"Ba2TeO","s":3,"d":0,"e":["Ba","Te","O"],"bg":1.783,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1078191","mu":{"Ba":-2.882,"Te":-5.396,"O":-8.251},"dmu":{"Ba":-1.492,"Te":-2.146,"O":-3.521}},{"m":"Ba3Na3AsP2","s":3,"d":0,"e":["Ba","Na","As","P"],"bg":1.22,"cs":"hexagonal","sg":"P-62m","ns":9,"mp":"mp-3201392","mu":{"Ba":-2.676,"Na":-1.366,"As":-5.801,"P":-6.362},"dmu":{"Ba":-1.286,"Na":-0.306,"As":-0.741,"P":-0.722}},{"m":"Ba3Sr(MgAs2)2","s":3,"d":0,"e":["Ba","Sr","Mg","As"],"bg":1.244,"cs":"monoclinic","sg":"Cm","ns":10,"mp":"mp-3208044","mu":{"Ba":-2.307,"Sr":-2.165,"Mg":-1.588,"As":-6.369},"dmu":{"Ba":-0.917,"Sr":-0.995,"Mg":-0.598,"As":-1.309}},{"m":"Ba4BiAsO","s":3,"d":0,"e":["Ba","Bi","As","O"],"bg":0.903,"cs":"tetragonal","sg":"I4mm","ns":7,"mp":"mp-3202871","mu":{"Ba":-2.368,"Bi":-5.569,"As":-6.493,"O":-9.059},"dmu":{"Ba":-0.978,"Bi":-1.179,"As":-1.433,"O":-4.329}},{"m":"BaAgSF","s":3,"d":0,"e":["Ba","Ag","S","F"],"bg":1.432,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1086652","mu":{"Ba":-5.499,"Ag":-0.889,"S":-4.113,"F":-5.472},"dmu":{"Ba":-4.109,"Ag":-0.059,"S":-0.113,"F":-3.772}},{"m":"BaAuO2","s":3,"d":0,"e":["Ba","Au","O"],"bg":1.189,"cs":"monoclinic","sg":"C2/m","ns":8,"mp":"mp-997009","mu":{"Ba":-5.774,"Au":-2.231,"O":-5.478},"dmu":{"Ba":-4.384,"Au":-0.001,"O":-0.748}},{"m":"BaGaSbO","s":3,"d":0,"e":["Ba","Ga","Sb","O"],"bg":1.199,"cs":"trigonal","sg":"P3m1","ns":4,"mp":"mp-3201071","mu":{"Ba":-3.38,"Ga":-2.939,"Sb":-4.695,"O":-8.27},"dmu":{"Ba":-1.99,"Ga":-0.569,"Sb":-0.405,"O":-3.54}},{"m":"BaHfN2","s":3,"d":0,"e":["Ba","Hf","N"],"bg":1.254,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-10322","mu":{"Ba":-1.806,"Hf":-10.321,"N":-9.526},"dmu":{"Ba":-0.416,"Hf":-2.921,"N":-1.016}},{"m":"BaLiP","s":3,"d":0,"e":["Ba","Li","P"],"bg":0.963,"cs":"hexagonal","sg":"P6_3/mmc","ns":6,"mp":"mp-13277","mu":{"Ba":-2.076,"Li":-2.16,"P":-7.177},"dmu":{"Ba":-0.686,"Li":-0.51,"P":-1.537}},{"m":"BaMgBiF","s":3,"d":0,"e":["Ba","Mg","Bi","F"],"bg":1.333,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-3333344","mu":{"Ba":-2.523,"Mg":-1.327,"Bi":-5.278,"F":-7.103},"dmu":{"Ba":-1.133,"Mg":-0.337,"Bi":-0.888,"F":-5.403}},{"m":"BaS2","s":3,"d":0,"e":["Ba","S"],"bg":1.598,"cs":"monoclinic","sg":"C2/c","ns":6,"mp":"mp-684","mu":{"Ba":-5.548,"S":-4.05},"dmu":{"Ba":-4.158,"S":-0.05}},{"m":"BaS3","s":3,"d":0,"e":["Ba","S"],"bg":1.391,"cs":"tetragonal","sg":"P-42_1m","ns":8,"mp":"mp-239","mu":{"Ba":-5.646,"S":-4.001},"dmu":{"Ba":-4.256,"S":-0.001}},{"m":"BaScS2F","s":3,"d":0,"e":["Ba","Sc","S","F"],"bg":1.61,"cs":"tetragonal","sg":"P4/mmm","ns":5,"mp":"mp-3200640","mu":{"Ba":-3.939,"Sc":-7.179,"S":-6.018,"F":-6.684},"dmu":{"Ba":-2.549,"Sc":-2.549,"S":-2.018,"F":-4.984}},{"m":"BaSe3","s":3,"d":0,"e":["Ba","Se"],"bg":0.926,"cs":"tetragonal","sg":"P-42_1m","ns":8,"mp":"mp-7548","mu":{"Ba":-5.572,"Se":-3.551},"dmu":{"Ba":-4.182,"Se":-0.001}},{"m":"BaSnSeS","s":3,"d":0,"e":["Ba","Sn","Se","S"],"bg":1.141,"cs":"orthorhombic","sg":"Pmc2_1","ns":8,"mp":"mp-3201429","mu":{"Ba":-5.259,"Sn":-4.411,"Se":-4.341,"S":-4.763},"dmu":{"Ba":-3.869,"Sn":-0.621,"Se":-0.791,"S":-0.763}},{"m":"BaTe","s":3,"d":0,"e":["Ba","Te"],"bg":1.22,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1000","mu":{"Ba":-3.184,"Te":-5.044},"dmu":{"Ba":-1.794,"Te":-1.794}},{"m":"BaTiO3","s":3,"d":0,"e":["Ba","Ti","O"],"bg":1.68,"cs":"tetragonal","sg":"P4mm","ns":5,"mp":"mp-2998","mu":{"Ba":-4.331,"Ti":-9.281,"O":-7.631},"dmu":{"Ba":-2.941,"Ti":-3.761,"O":-2.901}},{"m":"BaZrN2","s":3,"d":0,"e":["Ba","Zr","N"],"bg":0.997,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-3104","mu":{"Ba":-2.073,"Zr":-8.771,"N":-9.208},"dmu":{"Ba":-0.683,"Zr":-2.901,"N":-0.698}},{"m":"Bi2S2O","s":3,"d":0,"e":["Bi","S","O"],"bg":0.94,"cs":"tetragonal","sg":"P4/nmm","ns":10,"mp":"mp-1078366","mu":{"Bi":-4.627,"S":-4.431,"O":-6.714},"dmu":{"Bi":-0.237,"S":-0.431,"O":-1.984}},{"m":"Bi3BrO4","s":3,"d":0,"e":["Bi","Br","O"],"bg":0.926,"cs":"tetragonal","sg":"P4/mmm","ns":8,"mp":"mp-866311","mu":{"Bi":-6.209,"Br":-2.328,"O":-5.591},"dmu":{"Bi":-1.819,"Br":-0.868,"O":-0.861}},{"m":"BiIO","s":3,"d":0,"e":["Bi","I","O"],"bg":1.473,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-22987","mu":{"Bi":-5.714,"I":-1.83,"O":-6.047},"dmu":{"Bi":-1.324,"I":-0.3,"O":-1.317}},{"m":"BiTeBr","s":3,"d":0,"e":["Bi","Te","Br"],"bg":1.236,"cs":"trigonal","sg":"P3m1","ns":3,"mp":"mp-33723","mu":{"Bi":-4.656,"Te":-3.505,"Br":-2.453},"dmu":{"Bi":-0.266,"Te":-0.255,"Br":-0.993}},{"m":"BiTeCl","s":3,"d":0,"e":["Bi","Te","Cl"],"bg":1.514,"cs":"hexagonal","sg":"P6_3mc","ns":6,"mp":"mp-28944","mu":{"Bi":-4.676,"Te":-3.518,"Cl":-2.869},"dmu":{"Bi":-0.286,"Te":-0.268,"Cl":-1.239}},{"m":"BiTeI","s":3,"d":0,"e":["Bi","Te","I"],"bg":1.232,"cs":"trigonal","sg":"P3m1","ns":3,"mp":"mp-22965","mu":{"Bi":-4.652,"Te":-3.502,"I":-2.13},"dmu":{"Bi":-0.262,"Te":-0.252,"I":-0.6}},{"m":"BrCl","s":3,"d":0,"e":["Br","Cl"],"bg":1.783,"cs":"orthorhombic","sg":"Cmc2_1","ns":4,"mp":"mp-1066781","mu":{"Br":-1.514,"Cl":-1.684},"dmu":{"Br":-0.054,"Cl":-0.054}},{"m":"Ca(MgAs)2","s":3,"d":0,"e":["Ca","Mg","As"],"bg":1.26,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-9564","mu":{"Ca":-3.425,"Mg":-1.787,"As":-5.729},"dmu":{"Ca":-1.785,"Mg":-0.797,"As":-0.669}},{"m":"Ca2SnS4","s":3,"d":0,"e":["Ca","Sn","S"],"bg":2.26,"cs":"orthorhombic","sg":"Pnma","ns":28,"mp":"mp-866503","mu":{"Ca":-5.813,"Sn":-4.666,"S":-4.131},"dmu":{"Ca":-4.173,"Sn":-0.876,"S":-0.131}},{"m":"CaPtO3","s":3,"d":0,"e":["Ca","Pt","O"],"bg":1.295,"cs":"orthorhombic","sg":"Cmcm","ns":10,"mp":"mp-4784","mu":{"Ca":-6.554,"Pt":-3.951,"O":-5.743},"dmu":{"Ca":-4.914,"Pt":-0.001,"O":-1.013}},{"m":"CaTe","s":3,"d":0,"e":["Ca","Te"],"bg":0.67,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1519","mu":{"Ca":-3.289,"Te":-4.899},"dmu":{"Ca":-1.649,"Te":-1.649}},{"m":"CoAgO2","s":3,"d":0,"e":["Co","Ag","O"],"bg":1.332,"cs":"hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-19178","mu":{"Co":-5.168,"Ag":-1.026,"O":-4.948},"dmu":{"Co":-0.418,"Ag":-0.196,"O":-0.218}},{"m":"CrAgO2","s":3,"d":0,"e":["Cr","Ag","O"],"bg":1.663,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-19378","mu":{"Cr":-9.885,"Ag":-0.985,"O":-5.01},"dmu":{"Cr":-2.665,"Ag":-0.155,"O":-0.28}},{"m":"CrAuO2","s":3,"d":0,"e":["Cr","Au","O"],"bg":1.266,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-996996","mu":{"Cr":-9.984,"Au":-2.317,"O":-4.866},"dmu":{"Cr":-2.764,"Au":-0.087,"O":-0.136}},{"m":"CrCuO2","s":3,"d":0,"e":["Cr","Cu","O"],"bg":1.539,"cs":"trigonal","sg":"R-3m","ns":8,"mp":"mp-510625","mu":{"Cr":-8.438,"Cu":-2.123,"O":-5.93},"dmu":{"Cr":-1.218,"Cu":-0.153,"O":-1.2}},{"m":"Cs2In2As2O","s":3,"d":0,"e":["Cs","In","As","O"],"bg":1.361,"cs":"monoclinic","sg":"C2/m","ns":7,"mp":"mp-3201197","mu":{"Cs":-1.165,"In":-2.524,"As":-5.529,"O":-7.613},"dmu":{"Cs":-0.685,"In":-0.214,"As":-0.469,"O":-2.883}},{"m":"CsAuO2","s":3,"d":0,"e":["Cs","Au","O"],"bg":1.522,"cs":"orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-997024","mu":{"Cs":-2.577,"Au":-2.554,"O":-5.111},"dmu":{"Cs":-2.097,"Au":-0.324,"O":-0.381}},{"m":"CsAuSe","s":3,"d":0,"e":["Cs","Au","Se"],"bg":1.709,"cs":"orthorhombic","sg":"Cmcm","ns":6,"mp":"mp-574599","mu":{"Cs":-2.033,"Au":-2.44,"Se":-4.101},"dmu":{"Cs":-1.553,"Au":-0.21,"Se":-0.551}},{"m":"CsCuO","s":3,"d":0,"e":["Cs","Cu","O"],"bg":1.123,"cs":"orthorhombic","sg":"Cmcm","ns":6,"mp":"mp-541037","mu":{"Cs":-1.246,"Cu":-2.222,"O":-6.596},"dmu":{"Cs":-0.766,"Cu":-0.252,"O":-1.866}},{"m":"CsCuO2","s":3,"d":0,"e":["Cs","Cu","O"],"bg":0.967,"cs":"orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-553310","mu":{"Cs":-2.167,"Cu":-2.781,"O":-5.499},"dmu":{"Cs":-1.687,"Cu":-0.811,"O":-0.769}},{"m":"CsInBr3","s":3,"d":0,"e":["Cs","In","Br"],"bg":1.378,"cs":"cubic","sg":"Fm-3m","ns":10,"mp":"mp-1112338","mu":{"Cs":-3.158,"In":-2.834,"Br":-2.444},"dmu":{"Cs":-2.678,"In":-0.524,"Br":-0.984}},{"m":"CsLi2LaBi2","s":3,"d":0,"e":["Cs","Li","La","Bi"],"bg":1.05,"cs":"trigonal","sg":"P-3m1","ns":6,"mp":"mp-3248447","mu":{"Cs":-0.583,"Li":-2.143,"La":-4.927,"Bi":-5.22},"dmu":{"Cs":-0.103,"Li":-0.493,"La":-1.267,"Bi":-0.83}},{"m":"CsLi2LaSb2","s":3,"d":0,"e":["Cs","Li","La","Sb"],"bg":1.143,"cs":"trigonal","sg":"P-3m1","ns":6,"mp":"mp-3251791","mu":{"Cs":-0.743,"Li":-2.224,"La":-5.728,"Sb":-5.13},"dmu":{"Cs":-0.263,"Li":-0.574,"La":-2.068,"Sb":-0.84}},{"m":"CsMg4Bi3","s":3,"d":0,"e":["Cs","Mg","Bi"],"bg":0.953,"cs":"tetragonal","sg":"P4/mmm","ns":8,"mp":"mp-3337974","mu":{"Cs":-0.753,"Mg":-1.016,"Bi":-4.846},"dmu":{"Cs":-0.273,"Mg":-0.026,"Bi":-0.456}},{"m":"CsRb(YTe2)2","s":3,"d":0,"e":["Cs","Rb","Y","Te"],"bg":1.742,"cs":"hexagonal","sg":"P-6m2","ns":8,"mp":"mp-3201576","mu":{"Cs":-1.668,"Rb":-1.882,"Y":-6.913,"Te":-4.684},"dmu":{"Cs":-1.188,"Rb":-1.202,"Y":-2.103,"Te":-1.434}},{"m":"CsScZnAs2","s":3,"d":0,"e":["Cs","Sc","Zn","As"],"bg":1.681,"cs":"tetragonal","sg":"I-4m2","ns":5,"mp":"mp-3202376","mu":{"Cs":-0.536,"Sc":-6.631,"Zn":-0.878,"As":-5.808},"dmu":{"Cs":-0.056,"Sc":-2.001,"Zn":-0.038,"As":-0.748}},{"m":"CsSnCl3","s":3,"d":0,"e":["Cs","Sn","Cl"],"bg":2.915,"cs":"monoclinic","sg":"P2_1/c","ns":20,"mp":"mp-27394","mu":{"Cs":-3.131,"Sn":-4.198,"Cl":-3.017},"dmu":{"Cs":-2.651,"Sn":-0.408,"Cl":-1.387}},{"m":"CsSnS3","s":3,"d":0,"e":["Cs","Sn","S"],"bg":1.656,"cs":"triclinic","sg":"P-1","ns":10,"mp":"mp-561710","mu":{"Cs":-2.381,"Sn":-4.773,"S":-4.213},"dmu":{"Cs":-1.901,"Sn":-0.983,"S":-0.213}},{"m":"CsSnSe3","s":3,"d":0,"e":["Cs","Sn","Se"],"bg":1.19,"cs":"triclinic","sg":"P-1","ns":10,"mp":"mp-1542038","mu":{"Cs":-2.726,"Sn":-4.707,"Se":-3.64},"dmu":{"Cs":-2.246,"Sn":-0.917,"Se":-0.09}},{"m":"CsSrP","s":3,"d":0,"e":["Cs","Sr","P"],"bg":1.643,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-3201101","mu":{"Cs":-0.481,"Sr":-2.344,"P":-6.563},"dmu":{"Cs":-0.001,"Sr":-1.174,"P":-0.923}},{"m":"CsTe","s":3,"d":0,"e":["Cs","Te"],"bg":1.6,"cs":"orthorhombic","sg":"Pnma","ns":8,"mp":"mp-28229","mu":{"Cs":-1.807,"Te":-3.62},"dmu":{"Cs":-1.327,"Te":-0.37}},{"m":"FeAgO2","s":3,"d":0,"e":["Fe","Ag","O"],"bg":1.148,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-19225","mu":{"Fe":-6.909,"Ag":-0.942,"O":-4.925},"dmu":{"Fe":-0.759,"Ag":-0.112,"O":-0.195}},{"m":"FeOF","s":3,"d":0,"e":["Fe","O","F"],"bg":0.0,"cs":"tetragonal","sg":"P4_2/m","ns":12,"mp":"mp-1178215","mu":{"Fe":-7.132,"O":-4.731,"F":-3.678},"dmu":{"Fe":-0.982,"O":-0.001,"F":-1.978}},{"m":"Ga2S3","s":3,"d":0,"e":["Ga","S"],"bg":1.711,"cs":"monoclinic","sg":"Cc","ns":10,"mp":"mp-539","mu":{"Ga":-3.498,"S":-4.354},"dmu":{"Ga":-1.128,"S":-0.354}},{"m":"Ga2Se3","s":3,"d":0,"e":["Ga","Se"],"bg":1.044,"cs":"monoclinic","sg":"Cc","ns":10,"mp":"mp-1340","mu":{"Ga":-3.414,"Se":-3.831},"dmu":{"Ga":-1.044,"Se":-0.281}},{"m":"Ga2TeSe2","s":3,"d":0,"e":["Ga","Te","Se"],"bg":1.614,"cs":"tetragonal","sg":"I4_1md","ns":10,"mp":"mp-28423","mu":{"Ga":-3.073,"Te":-3.351,"Se":-4.085},"dmu":{"Ga":-0.703,"Te":-0.101,"Se":-0.535}},{"m":"GaN","s":3,"d":0,"e":["Ga","N"],"bg":1.68,"cs":"hexagonal","sg":"P6_3mc","ns":4,"mp":"mp-804","mu":{"Ga":-2.847,"N":-8.987},"dmu":{"Ga":-0.477,"N":-0.477}},{"m":"GaSe","s":3,"d":0,"e":["Ga","Se"],"bg":1.212,"cs":"hexagonal","sg":"P6_3mc","ns":16,"mp":"mp-568263","mu":{"Ga":-2.683,"Se":-4.422},"dmu":{"Ga":-0.313,"Se":-0.872}},{"m":"Ge2SeS","s":3,"d":0,"e":["Ge","Se","S"],"bg":1.134,"cs":"orthorhombic","sg":"Pmc2_1","ns":8,"mp":"mp-1224376","mu":{"Ge":-4.141,"Se":-3.983,"S":-4.501},"dmu":{"Ge":-0.001,"Se":-0.433,"S":-0.501}},{"m":"GeS","s":3,"d":0,"e":["Ge","S"],"bg":1.59,"cs":"orthorhombic","sg":"Pnma","ns":8,"mp":"mp-8566","mu":{"Ge":-4.148,"S":-4.494},"dmu":{"Ge":-0.008,"S":-0.494}},{"m":"HfIN","s":3,"d":0,"e":["Hf","I","N"],"bg":0.978,"cs":"trigonal","sg":"R-3m","ns":6,"mp":"mp-567441","mu":{"Hf":-10.386,"I":-2.02,"N":-9.277},"dmu":{"Hf":-2.986,"I":-0.49,"N":-0.767}},{"m":"HfS3","s":3,"d":0,"e":["Hf","S"],"bg":1.133,"cs":"monoclinic","sg":"P2_1/m","ns":8,"mp":"mp-9922","mu":{"Hf":-12.105,"S":-4.028},"dmu":{"Hf":-4.705,"S":-0.028}},{"m":"HfZrS6","s":3,"d":0,"e":["Hf","Zr","S"],"bg":1.087,"cs":"monoclinic","sg":"Pm","ns":8,"mp":"mp-1224121","mu":{"Hf":-12.186,"Zr":-10.665,"S":-4.001},"dmu":{"Hf":-4.786,"Zr":-4.795,"S":-0.001}},{"m":"ICl3","s":3,"d":0,"e":["I","Cl"],"bg":1.569,"cs":"triclinic","sg":"P-1","ns":8,"mp":"mp-1546049","mu":{"I":-1.971,"Cl":-1.756},"dmu":{"I":-0.441,"Cl":-0.126}},{"m":"In2AsP","s":3,"d":0,"e":["In","As","P"],"bg":1.329,"cs":"tetragonal","sg":"P-4m2","ns":4,"mp":"mp-1223851","mu":{"In":-2.723,"As":-5.107,"P":-5.641},"dmu":{"In":-0.413,"As":-0.047,"P":-0.001}},{"m":"In2O3","s":3,"d":0,"e":["In","O"],"bg":0.631,"cs":"cubic","sg":"Ia-3","ns":40,"mp":"mp-22598","mu":{"In":-4.292,"O":-6.052},"dmu":{"In":-1.982,"O":-1.322}},{"m":"InBr","s":3,"d":0,"e":["In","Br"],"bg":2.05,"cs":"orthorhombic","sg":"Cmcm","ns":4,"mp":"mp-22929","mu":{"In":-2.447,"Br":-2.668},"dmu":{"In":-0.137,"Br":-1.208}},{"m":"InCl","s":3,"d":0,"e":["In","Cl"],"bg":2.35,"cs":"orthorhombic","sg":"Cmcm","ns":4,"mp":"mp-22928","mu":{"In":-2.392,"Cl":-3.177},"dmu":{"In":-0.082,"Cl":-1.547}},{"m":"InGaAs2","s":3,"d":0,"e":["In","Ga","As"],"bg":1.28,"cs":"tetragonal","sg":"P-4m2","ns":4,"mp":"mp-1223781","mu":{"In":-2.311,"Ga":-2.619,"As":-5.518},"dmu":{"In":-0.001,"Ga":-0.249,"As":-0.458}},{"m":"InGaO3","s":3,"d":0,"e":["In","Ga","O"],"bg":1.342,"cs":"hexagonal","sg":"P6_3/mmc","ns":10,"mp":"mp-8098","mu":{"In":-2.311,"Ga":-3.051,"O":-7.372},"dmu":{"In":-0.001,"Ga":-0.681,"O":-2.642}},{"m":"InI","s":3,"d":0,"e":["In","I"],"bg":1.95,"cs":"orthorhombic","sg":"Cmcm","ns":4,"mp":"mp-22926","mu":{"In":-2.474,"I":-2.301},"dmu":{"In":-0.164,"I":-0.771}},{"m":"InSnBr3","s":3,"d":0,"e":["In","Sn","Br"],"bg":1.755,"cs":"trigonal","sg":"R3c","ns":10,"mp":"mp-998555","mu":{"In":-2.544,"Sn":-3.904,"Br":-2.577},"dmu":{"In":-0.234,"Sn":-0.114,"Br":-1.117}},{"m":"Ir2S3","s":3,"d":0,"e":["Ir","S"],"bg":0.782,"cs":"orthorhombic","sg":"Pbcn","ns":20,"mp":"mp-1188655","mu":{"Ir":-5.986,"S":-4.593},"dmu":{"Ir":-0.026,"S":-0.593}},{"m":"K2PdCl4","s":3,"d":0,"e":["K","Pd","Cl"],"bg":1.428,"cs":"tetragonal","sg":"P4/mmm","ns":7,"mp":"mp-22956","mu":{"K":-4.225,"Pd":-3.606,"Cl":-2.204},"dmu":{"K":-3.425,"Pd":-0.486,"Cl":-0.574}},{"m":"K2PdO2","s":3,"d":0,"e":["K","Pd","O"],"bg":1.37,"cs":"orthorhombic","sg":"Immm","ns":5,"mp":"mp-540584","mu":{"K":-1.587,"Pd":-3.407,"O":-6.358},"dmu":{"K":-0.787,"Pd":-0.287,"O":-1.628}},{"m":"K2PtS2","s":3,"d":0,"e":["K","Pt","S"],"bg":1.236,"cs":"orthorhombic","sg":"Immm","ns":5,"mp":"mp-7928","mu":{"K":-2.191,"Pt":-4.505,"S":-4.666},"dmu":{"K":-1.391,"Pt":-0.555,"S":-0.666}},{"m":"K2Rb2I2O","s":3,"d":0,"e":["K","Rb","I","O"],"bg":1.676,"cs":"tetragonal","sg":"I4/mmm","ns":7,"mp":"mp-3202851","mu":{"K":-1.607,"Rb":-1.429,"I":-4.211,"O":-6.886},"dmu":{"K":-0.807,"Rb":-0.749,"I":-2.681,"O":-2.156}},{"m":"K2S3","s":3,"d":0,"e":["K","S"],"bg":1.286,"cs":"orthorhombic","sg":"Cmc2_1","ns":10,"mp":"mp-7667","mu":{"K":-2.553,"S":-4.15},"dmu":{"K":-1.753,"S":-0.15}},{"m":"K2SeBr6","s":3,"d":0,"e":["K","Se","Br"],"bg":1.698,"cs":"cubic","sg":"Fm-3m","ns":9,"mp":"mp-23036","mu":{"K":-4.282,"Se":-3.99,"Br":-1.571},"dmu":{"K":-3.482,"Se":-0.44,"Br":-0.111}},{"m":"K2SiAs2","s":3,"d":0,"e":["K","Si","As"],"bg":1.004,"cs":"orthorhombic","sg":"Ibam","ns":10,"mp":"mp-6984","mu":{"K":-1.246,"Si":-5.207,"As":-5.641},"dmu":{"K":-0.446,"Si":-0.217,"As":-0.581}},{"m":"K2SiP2","s":3,"d":0,"e":["K","Si","P"],"bg":1.209,"cs":"orthorhombic","sg":"Ibam","ns":10,"mp":"mp-8235","mu":{"K":-1.219,"Si":-5.353,"P":-6.252},"dmu":{"K":-0.419,"Si":-0.363,"P":-0.612}},{"m":"K4I2O","s":3,"d":0,"e":["K","I","O"],"bg":1.017,"cs":"tetragonal","sg":"I4/mmm","ns":7,"mp":"mp-768368","mu":{"K":-1.366,"I":-4.001,"O":-6.845},"dmu":{"K":-0.566,"I":-2.471,"O":-2.115}},{"m":"K4ZnP2","s":3,"d":0,"e":["K","Zn","P"],"bg":0.946,"cs":"trigonal","sg":"R-3m","ns":7,"mp":"mp-11719","mu":{"K":-0.897,"Zn":-1.354,"P":-6.581},"dmu":{"K":-0.097,"Zn":-0.514,"P":-0.941}},{"m":"KAlTe2","s":3,"d":0,"e":["K","Al","Te"],"bg":2.236,"cs":"monoclinic","sg":"C2/c","ns":32,"mp":"mp-18347","mu":{"K":-2.534,"Al":-3.864,"Te":-3.55},"dmu":{"K":-1.734,"Al":-0.844,"Te":-0.3}},{"m":"KAuO2","s":3,"d":0,"e":["K","Au","O"],"bg":1.426,"cs":"orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-997002","mu":{"K":-2.947,"Au":-2.454,"O":-5.158},"dmu":{"K":-2.147,"Au":-0.224,"O":-0.428}},{"m":"KBiS2","s":3,"d":0,"e":["K","Bi","S"],"bg":1.416,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-1223443","mu":{"K":-2.572,"Bi":-5.15,"S":-4.319},"dmu":{"K":-1.772,"Bi":-0.76,"S":-0.319}},{"m":"KCrS2","s":3,"d":0,"e":["K","Cr","S"],"bg":1.164,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-4026","mu":{"K":-2.12,"Cr":-8.051,"S":-4.798},"dmu":{"K":-1.32,"Cr":-0.831,"S":-0.798}},{"m":"KLaTe2","s":3,"d":0,"e":["K","La","Te"],"bg":1.701,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-11739","mu":{"K":-2.139,"La":-6.602,"Te":-4.098},"dmu":{"K":-1.339,"La":-2.942,"Te":-0.848}},{"m":"KLiZn3O4","s":3,"d":0,"e":["K","Li","Zn","O"],"bg":1.643,"cs":"monoclinic","sg":"Cm","ns":9,"mp":"mp-1223469","mu":{"K":-1.955,"Li":-3.643,"Zn":-2.102,"O":-6.396},"dmu":{"K":-1.155,"Li":-1.993,"Zn":-1.262,"O":-1.666}},{"m":"KMgAs","s":3,"d":0,"e":["K","Mg","As"],"bg":1.162,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-1019089","mu":{"K":-1.176,"Mg":-1.723,"As":-6.001},"dmu":{"K":-0.376,"Mg":-0.733,"As":-0.941}},{"m":"KMgSb","s":3,"d":0,"e":["K","Mg","Sb"],"bg":1.267,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-7089","mu":{"K":-1.363,"Mg":-1.533,"Sb":-4.944},"dmu":{"K":-0.563,"Mg":-0.543,"Sb":-0.654}},{"m":"KMnF3","s":3,"d":0,"e":["K","Mn","F"],"bg":2.406,"cs":"orthorhombic","sg":"Imma","ns":10,"mp":"mp-1205353","mu":{"K":-3.793,"Mn":-8.219,"F":-4.315},"dmu":{"K":-2.993,"Mn":-1.219,"F":-2.615}},{"m":"KNaZnO2","s":3,"d":0,"e":["K","Na","Zn","O"],"bg":1.779,"cs":"monoclinic","sg":"C2/c","ns":10,"mp":"mp-557183","mu":{"K":-1.606,"Na":-2.024,"Zn":-2.064,"O":-6.636},"dmu":{"K":-0.806,"Na":-0.964,"Zn":-1.224,"O":-1.906}},{"m":"KNbO3","s":3,"d":0,"e":["K","Nb","O"],"bg":2.293,"cs":"trigonal","sg":"R3m","ns":5,"mp":"mp-7375","mu":{"K":-2.032,"Nb":-11.06,"O":-6.938},"dmu":{"K":-1.232,"Nb":-4.37,"O":-2.208}},{"m":"KPS3","s":3,"d":0,"e":["K","P","S"],"bg":1.715,"cs":"orthorhombic","sg":"Immm","ns":10,"mp":"mp-8267","mu":{"K":-3.366,"P":-6.032,"S":-4.117},"dmu":{"K":-2.566,"P":-0.392,"S":-0.117}},{"m":"KRbP3","s":3,"d":0,"e":["K","Rb","P"],"bg":1.156,"cs":"orthorhombic","sg":"Fmmm","ns":10,"mp":"mp-3200735","mu":{"K":-1.351,"Rb":-1.221,"P":-6.002},"dmu":{"K":-0.551,"Rb":-0.541,"P":-0.362}},{"m":"KSbS2","s":3,"d":0,"e":["K","Sb","S"],"bg":1.601,"cs":"monoclinic","sg":"C2/c","ns":8,"mp":"mp-11703","mu":{"K":-2.812,"Sb":-4.801,"S":-4.219},"dmu":{"K":-2.012,"Sb":-0.511,"S":-0.219}},{"m":"KTiIrSe4","s":3,"d":0,"e":["K","Ti","Ir","Se"],"bg":0.992,"cs":"monoclinic","sg":"Cm","ns":7,"mp":"mp-3202411","mu":{"K":-2.701,"Ti":-8.598,"Ir":-6.846,"Se":-4.01},"dmu":{"K":-1.901,"Ti":-3.078,"Ir":-0.886,"Se":-0.46}},{"m":"KYTe2","s":3,"d":0,"e":["K","Y","Te"],"bg":1.298,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-16763","mu":{"K":-1.966,"Y":-6.953,"Te":-4.412},"dmu":{"K":-1.166,"Y":-2.143,"Te":-1.162}},{"m":"La2Mn(TeO)2","s":3,"d":0,"e":["La","Mn","Te","O"],"bg":1.199,"cs":"tetragonal","sg":"P-4m2","ns":7,"mp":"mp-3246341","mu":{"La":-8.623,"Mn":-7.941,"Te":-3.751,"O":-7.57},"dmu":{"La":-4.963,"Mn":-0.941,"Te":-0.501,"O":-2.84}},{"m":"LaAgSO","s":3,"d":0,"e":["La","Ag","S","O"],"bg":1.363,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-6625","mu":{"La":-9.424,"Ag":-0.913,"S":-4.017,"O":-6.918},"dmu":{"La":-5.764,"Ag":-0.083,"S":-0.017,"O":-2.188}},{"m":"LaCoO3","s":3,"d":0,"e":["La","Co","O"],"bg":0.95,"cs":"trigonal","sg":"R-3","ns":10,"mp":"mp-1288145","mu":{"La":-12.092,"Co":-5.039,"O":-4.933},"dmu":{"La":-8.432,"Co":-0.289,"O":-0.203}},{"m":"LaCuSO","s":3,"d":0,"e":["La","Cu","S","O"],"bg":1.668,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-6088","mu":{"La":-8.937,"Cu":-2.024,"S":-4.387,"O":-7.247},"dmu":{"La":-5.277,"Cu":-0.054,"S":-0.387,"O":-2.517}},{"m":"LaSeF","s":3,"d":0,"e":["La","Se","F"],"bg":1.726,"cs":"hexagonal","sg":"P6_3/mmc","ns":6,"mp":"mp-7738","mu":{"La":-7.172,"Se":-4.632,"F":-6.084},"dmu":{"La":-3.512,"Se":-1.082,"F":-4.384}},{"m":"Li2FeIO6","s":3,"d":0,"e":["Li","Fe","I","O"],"bg":1.389,"cs":"trigonal","sg":"R3","ns":10,"mp":"mp-3208102","mu":{"Li":-5.308,"Fe":-8.584,"I":-4.621,"O":-5.119},"dmu":{"Li":-3.658,"Fe":-2.434,"I":-3.091,"O":-0.389}},{"m":"Li2PdO2","s":3,"d":0,"e":["Li","Pd","O"],"bg":1.197,"cs":"orthorhombic","sg":"Immm","ns":5,"mp":"mp-7608","mu":{"Li":-3.93,"Pd":-3.238,"O":-5.788},"dmu":{"Li":-2.28,"Pd":-0.118,"O":-1.058}},{"m":"Li2PtO2","s":3,"d":0,"e":["Li","Pt","O"],"bg":1.533,"cs":"orthorhombic","sg":"Immm","ns":5,"mp":"mp-1177862","mu":{"Li":-3.782,"Pt":-3.951,"O":-5.989},"dmu":{"Li":-2.132,"Pt":-0.001,"O":-1.259}},{"m":"Li2ZrN2","s":3,"d":0,"e":["Li","Zr","N"],"bg":1.562,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3216","mu":{"Li":-2.128,"Zr":-9.069,"N":-9.193},"dmu":{"Li":-0.478,"Zr":-3.199,"N":-0.683}},{"m":"Li3AlP2","s":3,"d":0,"e":["Li","Al","P"],"bg":1.688,"cs":"tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3328172","mu":{"Li":-2.347,"Al":-3.543,"P":-6.339},"dmu":{"Li":-0.697,"Al":-0.523,"P":-0.699}},{"m":"Li3GaP2","s":3,"d":0,"e":["Li","Ga","P"],"bg":1.458,"cs":"tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3201200","mu":{"Li":-2.422,"Ga":-2.718,"P":-6.113},"dmu":{"Li":-0.772,"Ga":-0.348,"P":-0.473}},{"m":"Li3InAs2","s":3,"d":0,"e":["Li","In","As"],"bg":0.919,"cs":"tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3202110","mu":{"Li":-2.518,"In":-2.522,"As":-5.307},"dmu":{"Li":-0.868,"In":-0.212,"As":-0.247}},{"m":"Li3InP2","s":3,"d":0,"e":["Li","In","P"],"bg":1.502,"cs":"tetragonal","sg":"P-4m2","ns":6,"mp":"mp-3202536","mu":{"Li":-2.482,"In":-2.429,"P":-5.935},"dmu":{"Li":-0.832,"In":-0.119,"P":-0.295}},{"m":"LiAuO2","s":3,"d":0,"e":["Li","Au","O"],"bg":1.526,"cs":"tetragonal","sg":"I4_122","ns":8,"mp":"mp-996959","mu":{"Li":-4.842,"Au":-2.395,"O":-4.841},"dmu":{"Li":-3.192,"Au":-0.165,"O":-0.111}},{"m":"LiGaTe2","s":3,"d":0,"e":["Li","Ga","Te"],"bg":1.589,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-5048","mu":{"Li":-3.241,"Ga":-3.048,"Te":-3.375},"dmu":{"Li":-1.591,"Ga":-0.678,"Te":-0.125}},{"m":"LiInSe2","s":3,"d":0,"e":["Li","In","Se"],"bg":1.573,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-20187","mu":{"Li":-3.408,"In":-2.982,"Se":-4.078},"dmu":{"Li":-1.758,"In":-0.672,"Se":-0.528}},{"m":"LiInTe2","s":3,"d":0,"e":["Li","In","Te"],"bg":1.385,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-20782","mu":{"Li":-3.158,"In":-2.706,"Te":-3.556},"dmu":{"Li":-1.508,"In":-0.396,"Te":-0.306}},{"m":"LiMgAs","s":3,"d":0,"e":["Li","Mg","As"],"bg":1.372,"cs":"cubic","sg":"F-43m","ns":3,"mp":"mp-12558","mu":{"Li":-2.517,"Mg":-1.778,"As":-5.641},"dmu":{"Li":-0.867,"Mg":-0.788,"As":-0.581}},{"m":"LiMgP","s":3,"d":0,"e":["Li","Mg","P"],"bg":1.711,"cs":"cubic","sg":"F-43m","ns":3,"mp":"mp-36111","mu":{"Li":-2.457,"Mg":-1.783,"P":-6.329},"dmu":{"Li":-0.807,"Mg":-0.793,"P":-0.689}},{"m":"LiMgSb","s":3,"d":0,"e":["Li","Mg","Sb"],"bg":1.444,"cs":"cubic","sg":"F-43m","ns":3,"mp":"mp-1207082","mu":{"Li":-2.431,"Mg":-1.372,"Sb":-4.816},"dmu":{"Li":-0.781,"Mg":-0.382,"Sb":-0.526}},{"m":"LiRhO2","s":3,"d":0,"e":["Li","Rh","O"],"bg":1.515,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-14115","mu":{"Li":-4.159,"Rh":-4.82,"O":-5.872},"dmu":{"Li":-2.509,"Rh":-0.06,"O":-1.142}},{"m":"LiSbS","s":3,"d":0,"e":["Li","Sb","S"],"bg":0.386,"cs":"triclinic","sg":"P1","ns":6,"mp":"mp-756006","mu":{"Li":-3.432,"Sb":-4.291,"S":-4.451},"dmu":{"Li":-1.782,"Sb":-0.001,"S":-0.451}},{"m":"LiSnN","s":3,"d":0,"e":["Li","Sn","N"],"bg":1.162,"cs":"hexagonal","sg":"P6_3mc","ns":6,"mp":"mp-1245983","mu":{"Li":-2.303,"Sn":-3.791,"N":-8.511},"dmu":{"Li":-0.653,"Sn":-0.001,"N":-0.001}},{"m":"Mg(InTe2)2","s":3,"d":0,"e":["Mg","In","Te"],"bg":1.477,"cs":"tetragonal","sg":"I-4","ns":7,"mp":"mp-1222182","mu":{"Mg":-2.571,"In":-2.768,"Te":-3.475},"dmu":{"Mg":-1.581,"In":-0.458,"Te":-0.225}},{"m":"Mg2Ga2S5","s":3,"d":0,"e":["Mg","Ga","S"],"bg":1.16,"cs":"trigonal","sg":"P-3m1","ns":9,"mp":"mp-1206963","mu":{"Mg":-3.006,"Ga":-2.838,"S":-4.838},"dmu":{"Mg":-2.016,"Ga":-0.468,"S":-0.838}},{"m":"Mg3SbN","s":3,"d":0,"e":["Mg","Sb","N"],"bg":1.623,"cs":"cubic","sg":"Pm-3m","ns":5,"mp":"mp-1080847","mu":{"Mg":-1.354,"Sb":-4.803,"N":-9.977},"dmu":{"Mg":-0.364,"Sb":-0.513,"N":-1.467}},{"m":"Mg6Bi2PN","s":3,"d":0,"e":["Mg","Bi","P","N"],"bg":0.905,"cs":"cubic","sg":"Fm-3m","ns":10,"mp":"mp-989522","mu":{"Mg":-1.169,"Bi":-4.621,"P":-7.05,"N":-10.131},"dmu":{"Mg":-0.179,"Bi":-0.231,"P":-1.41,"N":-1.621}},{"m":"MgGeP2","s":3,"d":0,"e":["Mg","Ge","P"],"bg":1.496,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-34903","mu":{"Mg":-2.018,"Ge":-4.141,"P":-5.767},"dmu":{"Mg":-1.028,"Ge":-0.001,"P":-0.127}},{"m":"MgS2","s":3,"d":0,"e":["Mg","S"],"bg":1.134,"cs":"trigonal","sg":"R-3m","ns":6,"mp":"mp-1185959","mu":{"Mg":-3.843,"S":-4.001},"dmu":{"Mg":-2.853,"S":-0.001}},{"m":"MgSe","s":3,"d":0,"e":["Mg","Se"],"bg":2.47,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1782","mu":{"Mg":-2.251,"Se":-4.798},"dmu":{"Mg":-1.261,"Se":-1.248}},{"m":"MgSiAs2","s":3,"d":0,"e":["Mg","Si","As"],"bg":1.303,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-1016197","mu":{"Mg":-1.987,"Si":-5.072,"As":-5.143},"dmu":{"Mg":-0.997,"Si":-0.082,"As":-0.083}},{"m":"MgSiP2","s":3,"d":0,"e":["Mg","Si","P"],"bg":1.373,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-2961","mu":{"Mg":-2.111,"Si":-5.157,"P":-5.838},"dmu":{"Mg":-1.121,"Si":-0.167,"P":-0.198}},{"m":"MgSnP2","s":3,"d":0,"e":["Mg","Sn","P"],"bg":1.214,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-1009083","mu":{"Mg":-2.018,"Sn":-3.791,"P":-5.767},"dmu":{"Mg":-1.028,"Sn":-0.001,"P":-0.127}},{"m":"MnBr2","s":3,"d":0,"e":["Mn","Br"],"bg":1.596,"cs":"trigonal","sg":"P-3m1","ns":3,"mp":"mp-28306","mu":{"Mn":-8.221,"Br":-2.071},"dmu":{"Mn":-1.221,"Br":-0.611}},{"m":"MnCl2","s":3,"d":0,"e":["Mn","Cl"],"bg":1.793,"cs":"trigonal","sg":"R-3m","ns":3,"mp":"mp-28233","mu":{"Mn":-8.63,"Cl":-2.445},"dmu":{"Mn":-1.63,"Cl":-0.815}},{"m":"MnI2","s":3,"d":0,"e":["Mn","I"],"bg":1.171,"cs":"trigonal","sg":"P-3m1","ns":3,"mp":"mp-28013","mu":{"Mn":-7.682,"I":-1.871},"dmu":{"Mn":-0.682,"I":-0.341}},{"m":"MnNbOF5","s":3,"d":0,"e":["Mn","Nb","O","F"],"bg":1.503,"cs":"triclinic","sg":"P1","ns":8,"mp":"mp-3201750","mu":{"Mn":-9.817,"Nb":-11.738,"O":-7.341,"F":-4.682},"dmu":{"Mn":-2.817,"Nb":-5.048,"O":-2.611,"F":-2.982}},{"m":"MnO","s":3,"d":0,"e":["Mn","O"],"bg":1.6,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-19306","mu":{"Mn":-7.001,"O":-6.381},"dmu":{"Mn":-0.001,"O":-1.651}},{"m":"MnPtBr6","s":3,"d":0,"e":["Mn","Pt","Br"],"bg":1.046,"cs":"monoclinic","sg":"C2","ns":8,"mp":"mp-3214600","mu":{"Mn":-10.056,"Pt":-5.133,"Br":-1.778},"dmu":{"Mn":-3.056,"Pt":-1.183,"Br":-0.318}},{"m":"Na2PtO2","s":3,"d":0,"e":["Na","Pt","O"],"bg":1.463,"cs":"orthorhombic","sg":"Immm","ns":5,"mp":"mp-22313","mu":{"Na":-2.148,"Pt":-4.061,"O":-6.326},"dmu":{"Na":-1.088,"Pt":-0.111,"O":-1.596}},{"m":"Na2SiP2","s":3,"d":0,"e":["Na","Si","P"],"bg":1.27,"cs":"orthorhombic","sg":"Ibam","ns":10,"mp":"mp-3345042","mu":{"Na":-1.699,"Si":-5.134,"P":-5.768},"dmu":{"Na":-0.639,"Si":-0.144,"P":-0.128}},{"m":"Na3SbSe4","s":3,"d":0,"e":["Na","Sb","Se"],"bg":0.987,"cs":"cubic","sg":"I-43m","ns":8,"mp":"mp-8703","mu":{"Na":-2.695,"Sb":-5.103,"Se":-3.586},"dmu":{"Na":-1.635,"Sb":-0.813,"Se":-0.036}},{"m":"NaAlTe2","s":3,"d":0,"e":["Na","Al","Te"],"bg":1.288,"cs":"tetragonal","sg":"I4/mcm","ns":8,"mp":"mp-10163","mu":{"Na":-2.446,"Al":-3.783,"Te":-3.518},"dmu":{"Na":-1.386,"Al":-0.763,"Te":-0.268}},{"m":"NaBiO2","s":3,"d":0,"e":["Na","Bi","O"],"bg":1.135,"cs":"monoclinic","sg":"C2/c","ns":8,"mp":"mp-22984","mu":{"Na":-2.625,"Bi":-5.254,"O":-6.271},"dmu":{"Na":-1.565,"Bi":-0.864,"O":-1.541}},{"m":"NaBiO3","s":3,"d":0,"e":["Na","Bi","O"],"bg":1.096,"cs":"trigonal","sg":"R-3","ns":10,"mp":"mp-23054","mu":{"Na":-3.662,"Bi":-7.393,"O":-4.817},"dmu":{"Na":-2.602,"Bi":-3.003,"O":-0.087}},{"m":"NaCaAs","s":3,"d":0,"e":["Na","Ca","As"],"bg":1.582,"cs":"cubic","sg":"F-43m","ns":3,"mp":"mp-961685","mu":{"Na":-1.239,"Ca":-2.745,"As":-6.35},"dmu":{"Na":-0.179,"Ca":-1.105,"As":-1.29}},{"m":"NaCo(PdO3)2","s":3,"d":0,"e":["Na","Co","Pd","O"],"bg":1.393,"cs":"monoclinic","sg":"C2","ns":10,"mp":"mp-3212364","mu":{"Na":-4.399,"Co":-6.327,"Pd":-4.903,"O":-5.127},"dmu":{"Na":-3.339,"Co":-1.577,"Pd":-1.783,"O":-0.397}},{"m":"NaInSe2","s":3,"d":0,"e":["Na","In","Se"],"bg":1.019,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-22473","mu":{"Na":-2.687,"In":-3.156,"Se":-3.902},"dmu":{"Na":-1.627,"In":-0.846,"Se":-0.352}},{"m":"NaLi2LaAs2","s":3,"d":0,"e":["Na","Li","La","As"],"bg":0.947,"cs":"trigonal","sg":"P-3m1","ns":6,"mp":"mp-3252342","mu":{"Na":-1.282,"Li":-2.325,"La":-5.794,"As":-6.055},"dmu":{"Na":-0.222,"Li":-0.675,"La":-2.134,"As":-0.995}},{"m":"NaLiZnSe2","s":3,"d":0,"e":["Na","Li","Zn","Se"],"bg":1.76,"cs":"trigonal","sg":"P3m1","ns":5,"mp":"mp-3202218","mu":{"Na":-2.383,"Li":-3.566,"Zn":-1.826,"Se":-4.385},"dmu":{"Na":-1.323,"Li":-1.916,"Zn":-0.986,"Se":-0.835}},{"m":"NaMgSb","s":3,"d":0,"e":["Na","Mg","Sb"],"bg":1.036,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-7090","mu":{"Na":-1.594,"Mg":-1.399,"Sb":-4.877},"dmu":{"Na":-0.534,"Mg":-0.409,"Sb":-0.587}},{"m":"NaNbO3","s":3,"d":0,"e":["Na","Nb","O"],"bg":2.505,"cs":"trigonal","sg":"R3c","ns":10,"mp":"mp-4514","mu":{"Na":-2.951,"Nb":-10.647,"O":-6.838},"dmu":{"Na":-1.891,"Nb":-3.957,"O":-2.108}},{"m":"NaRhO2","s":3,"d":0,"e":["Na","Rh","O"],"bg":1.377,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-8830","mu":{"Na":-2.656,"Rh":-5.718,"O":-5.696},"dmu":{"Na":-1.596,"Rh":-0.958,"O":-0.966}},{"m":"NaS","s":3,"d":0,"e":["Na","S"],"bg":1.235,"cs":"hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-2400","mu":{"Na":-2.611,"S":-4.104},"dmu":{"Na":-1.551,"S":-0.104}},{"m":"NaSbO2","s":3,"d":0,"e":["Na","Sb","O"],"bg":1.465,"cs":"monoclinic","sg":"C2/c","ns":8,"mp":"mp-754368","mu":{"Na":-2.346,"Sb":-4.389,"O":-7.067},"dmu":{"Na":-1.286,"Sb":-0.099,"O":-2.337}},{"m":"NaSnN","s":3,"d":0,"e":["Na","Sn","N"],"bg":0.918,"cs":"hexagonal","sg":"P6_3mc","ns":6,"mp":"mp-12433","mu":{"Na":-1.474,"Sn":-3.818,"N":-8.511},"dmu":{"Na":-0.414,"Sn":-0.028,"N":-0.001}},{"m":"NaSrP","s":3,"d":0,"e":["Na","Sr","P"],"bg":1.236,"cs":"hexagonal","sg":"P-62m","ns":9,"mp":"mp-13275","mu":{"Na":-1.233,"Sr":-2.304,"P":-6.725},"dmu":{"Na":-0.173,"Sr":-1.134,"P":-1.085}},{"m":"NaTaN2","s":3,"d":0,"e":["Na","Ta","N"],"bg":1.276,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-5475","mu":{"Na":-1.457,"Ta":-11.113,"N":-8.97},"dmu":{"Na":-0.397,"Ta":-2.293,"N":-0.46}},{"m":"NaTiRhS4","s":3,"d":0,"e":["Na","Ti","Rh","S"],"bg":1.162,"cs":"monoclinic","sg":"Cm","ns":7,"mp":"mp-3202698","mu":{"Na":-3.051,"Ti":-9.124,"Rh":-6.111,"S":-4.441},"dmu":{"Na":-1.991,"Ti":-3.604,"Rh":-1.351,"S":-0.441}},{"m":"Nb(SBr)2","s":3,"d":0,"e":["Nb","S","Br"],"bg":1.5,"cs":"triclinic","sg":"P-1","ns":10,"mp":"mp-1079487","mu":{"Nb":-9.519,"S":-4.16,"Br":-2.01},"dmu":{"Nb":-2.829,"S":-0.16,"Br":-0.55}},{"m":"PdF3","s":3,"d":0,"e":["Pd","F"],"bg":1.049,"cs":"trigonal","sg":"R-3","ns":8,"mp":"mp-1524446","mu":{"Pd":-4.497,"F":-2.883},"dmu":{"Pd":-1.377,"F":-1.183}},{"m":"PtS2","s":3,"d":0,"e":["Pt","S"],"bg":1.547,"cs":"trigonal","sg":"P-3m1","ns":3,"mp":"mp-762","mu":{"Pt":-4.765,"S":-4.118},"dmu":{"Pt":-0.815,"S":-0.118}},{"m":"RbAuO2","s":3,"d":0,"e":["Rb","Au","O"],"bg":1.461,"cs":"orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-7472","mu":{"Rb":-2.896,"Au":-2.528,"O":-5.061},"dmu":{"Rb":-2.216,"Au":-0.298,"O":-0.331}},{"m":"RbAuSe","s":3,"d":0,"e":["Rb","Au","Se"],"bg":1.712,"cs":"orthorhombic","sg":"Cmcm","ns":6,"mp":"mp-9731","mu":{"Rb":-2.218,"Au":-2.418,"Se":-4.076},"dmu":{"Rb":-1.538,"Au":-0.188,"Se":-0.526}},{"m":"RbBiS2","s":3,"d":0,"e":["Rb","Bi","S"],"bg":1.339,"cs":"trigonal","sg":"R-3m","ns":4,"mp":"mp-30041","mu":{"Rb":-2.259,"Bi":-4.944,"S":-4.468},"dmu":{"Rb":-1.579,"Bi":-0.554,"S":-0.468}},{"m":"RbCaAs","s":3,"d":0,"e":["Rb","Ca","As"],"bg":1.298,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-9845","mu":{"Rb":-0.822,"Ca":-2.954,"As":-6.139},"dmu":{"Rb":-0.142,"Ca":-1.314,"As":-1.079}},{"m":"RbCaSb","s":3,"d":0,"e":["Rb","Ca","Sb"],"bg":1.498,"cs":"tetragonal","sg":"P4/nmm","ns":6,"mp":"mp-9846","mu":{"Rb":-0.945,"Ca":-2.79,"Sb":-5.277},"dmu":{"Rb":-0.265,"Ca":-1.15,"Sb":-0.987}},{"m":"RbCuO2","s":3,"d":0,"e":["Rb","Cu","O"],"bg":0.914,"cs":"orthorhombic","sg":"Cmcm","ns":8,"mp":"mp-7467","mu":{"Rb":-2.413,"Cu":-2.859,"O":-5.45},"dmu":{"Rb":-1.733,"Cu":-0.889,"O":-0.72}},{"m":"RbInTe2","s":3,"d":0,"e":["Rb","In","Te"],"bg":1.111,"cs":"tetragonal","sg":"I4/mcm","ns":8,"mp":"mp-22255","mu":{"Rb":-2.333,"In":-2.82,"Te":-3.574},"dmu":{"Rb":-1.653,"In":-0.51,"Te":-0.324}},{"m":"RbLi2LaBi2","s":3,"d":0,"e":["Rb","Li","La","Bi"],"bg":1.02,"cs":"trigonal","sg":"P-3m1","ns":6,"mp":"mp-3253603","mu":{"Rb":-0.829,"Li":-2.142,"La":-4.925,"Bi":-5.222},"dmu":{"Rb":-0.149,"Li":-0.492,"La":-1.265,"Bi":-0.832}},{"m":"RbLi2YSb2","s":3,"d":0,"e":["Rb","Li","Y","Sb"],"bg":1.027,"cs":"trigonal","sg":"P-3m1","ns":6,"mp":"mp-3203098","mu":{"Rb":-1.008,"Li":-2.213,"Y":-6.217,"Sb":-5.327},"dmu":{"Rb":-0.328,"Li":-0.563,"Y":-1.407,"Sb":-1.037}},{"m":"RbYTe2","s":3,"d":0,"e":["Rb","Y","Te"],"bg":1.356,"cs":"hexagonal","sg":"P6_3/mmc","ns":8,"mp":"mp-16764","mu":{"Rb":-1.796,"Y":-6.921,"Te":-4.421},"dmu":{"Rb":-1.116,"Y":-2.111,"Te":-1.171}},{"m":"Sb2S2O","s":3,"d":0,"e":["Sb","S","O"],"bg":1.237,"cs":"triclinic","sg":"P-1","ns":20,"mp":"mp-28711","mu":{"Sb":-4.841,"S":-4.05,"O":-6.597},"dmu":{"Sb":-0.551,"S":-0.05,"O":-1.867}},{"m":"SbO2F","s":3,"d":0,"e":["Sb","O","F"],"bg":1.333,"cs":"monoclinic","sg":"Cc","ns":8,"mp":"mp-752561","mu":{"Sb":-8.692,"O":-4.731,"F":-3.464},"dmu":{"Sb":-4.402,"O":-0.001,"F":-1.764}},{"m":"SbTeBr","s":3,"d":0,"e":["Sb","Te","Br"],"bg":1.256,"cs":"trigonal","sg":"P3m1","ns":3,"mp":"mp-3201630","mu":{"Sb":-4.711,"Te":-3.586,"Br":-2.689},"dmu":{"Sb":-0.421,"Te":-0.336,"Br":-1.229}},{"m":"SiPAu","s":3,"d":0,"e":["Si","P","Au"],"bg":0.983,"cs":"trigonal","sg":"R3m","ns":3,"mp":"mp-1207095","mu":{"Si":-5.174,"P":-5.877,"Au":-2.411},"dmu":{"Si":-0.184,"P":-0.237,"Au":-0.181}},{"m":"Sn(PS3)2","s":3,"d":0,"e":["Sn","P","S"],"bg":1.194,"cs":"trigonal","sg":"R3","ns":9,"mp":"mp-36381","mu":{"Sn":-4.948,"P":-6.107,"S":-4.053},"dmu":{"Sn":-1.158,"P":-0.467,"S":-0.053}},{"m":"SnI2","s":3,"d":0,"e":["Sn","I"],"bg":1.3,"cs":"monoclinic","sg":"P2_1/c","ns":12,"mp":"mp-27844","mu":{"Sn":-4.332,"I":-1.999},"dmu":{"Sn":-0.542,"I":-0.469}},{"m":"Sr(AlTe2)2","s":3,"d":0,"e":["Sr","Al","Te"],"bg":1.445,"cs":"tetragonal","sg":"I422","ns":7,"mp":"mp-37091","mu":{"Sr":-4.404,"Al":-3.707,"Te":-3.56},"dmu":{"Sr":-3.234,"Al":-0.687,"Te":-0.31}},{"m":"Sr(CaBi)2","s":3,"d":0,"e":["Sr","Ca","Bi"],"bg":1.451,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3202377","mu":{"Sr":-2.22,"Ca":-2.594,"Bi":-5.039},"dmu":{"Sr":-1.05,"Ca":-0.954,"Bi":-0.649}},{"m":"Sr(CaSb)2","s":3,"d":0,"e":["Sr","Ca","Sb"],"bg":1.596,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-3201798","mu":{"Sr":-2.035,"Ca":-2.42,"Sb":-5.812},"dmu":{"Sr":-0.865,"Ca":-0.78,"Sb":-1.522}},{"m":"Sr(Li2P)2","s":3,"d":0,"e":["Sr","Li","P"],"bg":0.976,"cs":"trigonal","sg":"R-3m","ns":7,"mp":"mp-570097","mu":{"Sr":-2.163,"Li":-2.073,"P":-7.205},"dmu":{"Sr":-0.993,"Li":-0.423,"P":-1.565}},{"m":"Sr(MgAs)2","s":3,"d":0,"e":["Sr","Mg","As"],"bg":1.346,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-863260","mu":{"Sr":-2.914,"Mg":-1.77,"As":-5.812},"dmu":{"Sr":-1.744,"Mg":-0.78,"As":-0.752}},{"m":"Sr(MgSb)2","s":3,"d":0,"e":["Sr","Mg","Sb"],"bg":0.981,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-9566","mu":{"Sr":-2.865,"Mg":-1.52,"Sb":-4.794},"dmu":{"Sr":-1.695,"Mg":-0.53,"Sb":-0.504}},{"m":"Sr2GaSbO6","s":3,"d":0,"e":["Sr","Ga","Sb","O"],"bg":1.291,"cs":"tetragonal","sg":"I4/m","ns":10,"mp":"mp-6304","mu":{"Sr":-6.419,"Ga":-7.287,"Sb":-10.011,"O":-4.95},"dmu":{"Sr":-5.249,"Ga":-4.917,"Sb":-5.721,"O":-0.22}},{"m":"Sr2LiBrO6","s":3,"d":0,"e":["Sr","Li","Br","O"],"bg":1.349,"cs":"cubic","sg":"Fm-3m","ns":10,"mp":"mp-3206454","mu":{"Sr":-7.039,"Li":-5.267,"Br":-2.619,"O":-4.974},"dmu":{"Sr":-5.869,"Li":-3.617,"Br":-1.159,"O":-0.244}},{"m":"Sr2NbFeO6","s":3,"d":0,"e":["Sr","Nb","Fe","O"],"bg":1.783,"cs":"cubic","sg":"Fm-3m","ns":20,"mp":"mp-1218741","mu":{"Sr":-6.563,"Nb":-16.026,"Fe":-6.771,"O":-5.086},"dmu":{"Sr":-5.393,"Nb":-9.336,"Fe":-0.621,"O":-0.356}},{"m":"Sr4BiAsO","s":3,"d":0,"e":["Sr","Bi","As","O"],"bg":1.469,"cs":"tetragonal","sg":"I4mm","ns":7,"mp":"mp-3201589","mu":{"Sr":-2.126,"Bi":-5.509,"As":-6.706,"O":-9.601},"dmu":{"Sr":-0.956,"Bi":-1.119,"As":-1.646,"O":-4.871}},{"m":"SrAgSF","s":3,"d":0,"e":["Sr","Ag","S","F"],"bg":1.253,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1078562","mu":{"Sr":-5.279,"Ag":-0.831,"S":-4.181,"F":-5.534},"dmu":{"Sr":-4.109,"Ag":-0.001,"S":-0.181,"F":-3.834}},{"m":"SrCuSF","s":3,"d":0,"e":["Sr","Cu","S","F"],"bg":1.513,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-12444","mu":{"Sr":-5.081,"Cu":-1.991,"S":-4.386,"F":-5.637},"dmu":{"Sr":-3.911,"Cu":-0.021,"S":-0.386,"F":-3.937}},{"m":"SrHfN2","s":3,"d":0,"e":["Sr","Hf","N"],"bg":1.546,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1029396","mu":{"Sr":-1.946,"Hf":-10.6,"N":-9.344},"dmu":{"Sr":-0.776,"Hf":-3.2,"N":-0.834}},{"m":"SrLi2GeSe4","s":3,"d":0,"e":["Sr","Li","Ge","Se"],"bg":1.675,"cs":"tetragonal","sg":"I-42m","ns":8,"mp":"mp-3201325","mu":{"Sr":-5.438,"Li":-3.913,"Ge":-4.599,"Se":-3.895},"dmu":{"Sr":-4.268,"Li":-2.263,"Ge":-0.459,"Se":-0.345}},{"m":"SrLiP","s":3,"d":0,"e":["Sr","Li","P"],"bg":1.343,"cs":"hexagonal","sg":"P6_3/mmc","ns":6,"mp":"mp-13276","mu":{"Sr":-1.916,"Li":-2.124,"P":-7.357},"dmu":{"Sr":-0.746,"Li":-0.474,"P":-1.717}},{"m":"SrMg2N2","s":3,"d":0,"e":["Sr","Mg","N"],"bg":1.692,"cs":"trigonal","sg":"P-3m1","ns":5,"mp":"mp-10550","mu":{"Sr":-1.742,"Mg":-1.895,"N":-9.06},"dmu":{"Sr":-0.572,"Mg":-0.905,"N":-0.55}},{"m":"SrS2","s":3,"d":0,"e":["Sr","S"],"bg":1.282,"cs":"tetragonal","sg":"I4/mcm","ns":6,"mp":"mp-1950","mu":{"Sr":-5.458,"S":-4.001},"dmu":{"Sr":-4.288,"S":-0.001}},{"m":"SrSnO3","s":3,"d":0,"e":["Sr","Sn","O"],"bg":1.736,"cs":"orthorhombic","sg":"Pnma","ns":20,"mp":"mp-2879","mu":{"Sr":-5.64,"Sn":-6.099,"O":-6.182},"dmu":{"Sr":-4.47,"Sn":-2.309,"O":-1.452}},{"m":"SrTaNO2","s":3,"d":0,"e":["Sr","Ta","N","O"],"bg":1.117,"cs":"orthorhombic","sg":"Ama2","ns":20,"mp":"mp-2583419","mu":{"Sr":-3.165,"Ta":-10.934,"N":-9.013,"O":-8.442},"dmu":{"Sr":-1.995,"Ta":-2.114,"N":-0.503,"O":-3.712}},{"m":"SrTe","s":3,"d":0,"e":["Sr","Te"],"bg":1.56,"cs":"cubic","sg":"Fm-3m","ns":2,"mp":"mp-1560","mu":{"Sr":-2.914,"Te":-4.994},"dmu":{"Sr":-1.744,"Te":-1.744}},{"m":"SrZrN2","s":3,"d":0,"e":["Sr","Zr","N"],"bg":1.227,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-1029275","mu":{"Sr":-1.998,"Zr":-8.697,"N":-9.277},"dmu":{"Sr":-0.828,"Zr":-2.827,"N":-0.767}},{"m":"Ta(OF3)2","s":3,"d":0,"e":["Ta","O","F"],"bg":1.152,"cs":"triclinic","sg":"P-1","ns":9,"mp":"mp-3345715","mu":{"Ta":-23.878,"O":-5.24,"F":-2.72},"dmu":{"Ta":-15.058,"O":-0.51,"F":-1.02}},{"m":"TaCrOF5","s":3,"d":0,"e":["Ta","Cr","O","F"],"bg":0.921,"cs":"triclinic","sg":"P1","ns":8,"mp":"mp-3202394","mu":{"Ta":-14.029,"Cr":-9.324,"O":-7.76,"F":-4.839},"dmu":{"Ta":-5.209,"Cr":-2.104,"O":-3.03,"F":-3.139}},{"m":"TaFeOF5","s":3,"d":0,"e":["Ta","Fe","O","F"],"bg":0.917,"cs":"triclinic","sg":"P1","ns":8,"mp":"mp-3203126","mu":{"Ta":-16.892,"Fe":-7.937,"O":-6.768,"F":-4.389},"dmu":{"Ta":-8.072,"Fe":-1.787,"O":-2.038,"F":-2.689}},{"m":"TaVOF5","s":3,"d":0,"e":["Ta","V","O","F"],"bg":1.005,"cs":"triclinic","sg":"P1","ns":8,"mp":"mp-3201331","mu":{"Ta":-14.633,"V":-9.174,"O":-7.413,"F":-4.763},"dmu":{"Ta":-5.813,"V":-2.754,"O":-2.683,"F":-3.063}},{"m":"TeO3","s":3,"d":0,"e":["Te","O"],"bg":2.159,"cs":"monoclinic","sg":"C2/m","ns":16,"mp":"mp-1101301","mu":{"Te":-6.375,"O":-4.792},"dmu":{"Te":-3.125,"O":-0.062}},{"m":"TiSnO3","s":3,"d":0,"e":["Ti","Sn","O"],"bg":1.109,"cs":"trigonal","sg":"R-3","ns":10,"mp":"mp-754246","mu":{"Ti":-9.74,"Sn":-3.91,"O":-7.189},"dmu":{"Ti":-4.22,"Sn":-0.12,"O":-2.459}},{"m":"VAgF6","s":3,"d":0,"e":["V","Ag","F"],"bg":1.111,"cs":"trigonal","sg":"R-3","ns":8,"mp":"mp-3337159","mu":{"V":-13.585,"Ag":-3.495,"F":-3.289},"dmu":{"V":-7.165,"Ag":-2.665,"F":-1.589}},{"m":"VBr2","s":3,"d":0,"e":["V","Br"],"bg":1.133,"cs":"trigonal","sg":"P-3m1","ns":3,"mp":"mp-971787","mu":{"V":-7.143,"Br":-2.379},"dmu":{"V":-0.723,"Br":-0.919}},{"m":"VBrO","s":3,"d":0,"e":["V","Br","O"],"bg":1.491,"cs":"orthorhombic","sg":"Pmmn","ns":6,"mp":"mp-27841","mu":{"V":-7.865,"Br":-2.018,"O":-6.194},"dmu":{"V":-1.445,"Br":-0.558,"O":-1.464}},{"m":"VCl2","s":3,"d":0,"e":["V","Cl"],"bg":1.256,"cs":"trigonal","sg":"P-3m1","ns":3,"mp":"mp-22877","mu":{"V":-6.659,"Cl":-3.243},"dmu":{"V":-0.239,"Cl":-1.613}},{"m":"VClO","s":3,"d":0,"e":["V","Cl","O"],"bg":1.674,"cs":"orthorhombic","sg":"Pmmn","ns":6,"mp":"mp-23061","mu":{"V":-6.897,"Cl":-3.124,"O":-6.818},"dmu":{"V":-0.477,"Cl":-1.494,"O":-2.088}},{"m":"VF3","s":3,"d":0,"e":["V","F"],"bg":1.603,"cs":"trigonal","sg":"R-3c","ns":8,"mp":"mp-559931","mu":{"V":-8.791,"F":-4.178},"dmu":{"V":-2.371,"F":-2.478}},{"m":"VI2","s":3,"d":0,"e":["V","I"],"bg":1.037,"cs":"trigonal","sg":"P-3m1","ns":3,"mp":"mp-1018138","mu":{"V":-7.108,"I":-1.92},"dmu":{"V":-0.688,"I":-0.39}},{"m":"Y4Se3N2","s":3,"d":0,"e":["Y","Se","N"],"bg":1.394,"cs":"monoclinic","sg":"C2/m","ns":9,"mp":"mp-1029349","mu":{"Y":-7.024,"Se":-5.256,"N":-9.703},"dmu":{"Y":-2.214,"Se":-1.706,"N":-1.193}},{"m":"YZnAsO","s":3,"d":0,"e":["Y","Zn","As","O"],"bg":1.202,"cs":"tetragonal","sg":"P4/nmm","ns":8,"mp":"mp-546011","mu":{"Y":-7.661,"Zn":-0.915,"As":-5.332,"O":-8.77},"dmu":{"Y":-2.851,"Zn":-0.075,"As":-0.272,"O":-4.04}},{"m":"Zn(GaTe2)2","s":3,"d":0,"e":["Zn","Ga","Te"],"bg":1.018,"cs":"tetragonal","sg":"I-4","ns":7,"mp":"mp-15777","mu":{"Zn":-1.768,"Ga":-3.063,"Te":-3.346},"dmu":{"Zn":-0.928,"Ga":-0.693,"Te":-0.096}},{"m":"Zn2SeS","s":3,"d":0,"e":["Zn","Se","S"],"bg":1.491,"cs":"tetragonal","sg":"P-4m2","ns":4,"mp":"mp-1215430","mu":{"Zn":-2.273,"Se":-3.551,"S":-4.193},"dmu":{"Zn":-1.433,"Se":-0.001,"S":-0.193}},{"m":"Zn2Si2As3P","s":3,"d":0,"e":["Zn","Si","As","P"],"bg":1.182,"cs":"monoclinic","sg":"C2","ns":8,"mp":"mp-1215555","mu":{"Zn":-1.34,"Si":-4.991,"As":-5.205,"P":-6.019},"dmu":{"Zn":-0.5,"Si":-0.001,"As":-0.145,"P":-0.379}},{"m":"Zn2Si2AsP3","s":3,"d":0,"e":["Zn","Si","As","P"],"bg":1.286,"cs":"monoclinic","sg":"C2","ns":8,"mp":"mp-1215549","mu":{"Zn":-1.34,"Si":-4.991,"As":-5.205,"P":-6.019},"dmu":{"Zn":-0.5,"Si":-0.001,"As":-0.145,"P":-0.379}},{"m":"Zn5Se4S","s":3,"d":0,"e":["Zn","Se","S"],"bg":1.254,"cs":"trigonal","sg":"R3m","ns":10,"mp":"mp-1215566","mu":{"Zn":-2.272,"Se":-3.551,"S":-4.193},"dmu":{"Zn":-1.432,"Se":-0.001,"S":-0.193}},{"m":"ZnGaPS","s":3,"d":0,"e":["Zn","Ga","P","S"],"bg":1.67,"cs":"trigonal","sg":"R3m","ns":4,"mp":"mp-1215443","mu":{"Zn":-1.161,"Ga":-2.371,"P":-6.461,"S":-5.304},"dmu":{"Zn":-0.321,"Ga":-0.001,"P":-0.821,"S":-1.304}},{"m":"ZnGeP2","s":3,"d":0,"e":["Zn","Ge","P"],"bg":1.178,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-4524","mu":{"Zn":-1.275,"Ge":-4.188,"P":-5.821},"dmu":{"Zn":-0.435,"Ge":-0.048,"P":-0.181}},{"m":"ZnInGaO4","s":3,"d":0,"e":["Zn","In","Ga","O"],"bg":1.069,"cs":"trigonal","sg":"R3m","ns":7,"mp":"mp-1215688","mu":{"Zn":-3.736,"In":-6.274,"Ga":-7.169,"O":-4.731},"dmu":{"Zn":-2.896,"In":-3.964,"Ga":-4.799,"O":-0.001}},{"m":"ZnSiAsP","s":3,"d":0,"e":["Zn","Si","As","P"],"bg":1.209,"cs":"orthorhombic","sg":"I2_12_12_1","ns":8,"mp":"mp-1215540","mu":{"Zn":-1.34,"Si":-4.991,"As":-5.205,"P":-6.019},"dmu":{"Zn":-0.5,"Si":-0.001,"As":-0.145,"P":-0.379}},{"m":"ZnSiP2","s":3,"d":0,"e":["Zn","Si","P"],"bg":1.364,"cs":"tetragonal","sg":"I-42d","ns":8,"mp":"mp-4763","mu":{"Zn":-1.314,"Si":-5.258,"P":-5.898},"dmu":{"Zn":-0.474,"Si":-0.268,"P":-0.258}},{"m":"ZrBrN","s":3,"d":0,"e":["Zr","Br","N"],"bg":1.442,"cs":"trigonal","sg":"R-3m","ns":6,"mp":"mp-541912","mu":{"Zr":-8.64,"Br":-2.698,"N":-9.32},"dmu":{"Zr":-2.77,"Br":-1.238,"N":-0.81}},{"m":"ZrCl2","s":3,"d":0,"e":["Zr","Cl"],"bg":1.048,"cs":"trigonal","sg":"R3m","ns":3,"mp":"mp-23162","mu":{"Zr":-6.397,"Cl":-3.834},"dmu":{"Zr":-0.527,"Cl":-2.204}},{"m":"ZrIN","s":3,"d":0,"e":["Zr","I","N"],"bg":1.217,"cs":"orthorhombic","sg":"Pmmn","ns":6,"mp":"mp-23052","mu":{"Zr":-8.893,"I":-2.124,"N":-9.017},"dmu":{"Zr":-3.023,"I":-0.594,"N":-0.507}},{"m":"ZrNCl","s":3,"d":0,"e":["Zr","N","Cl"],"bg":1.745,"cs":"trigonal","sg":"R-3m","ns":6,"mp":"mp-568592","mu":{"Zr":-8.783,"N":-9.185,"Cl":-3.341},"dmu":{"Zr":-2.913,"N":-0.675,"Cl":-1.711}},{"m":"ZrS3","s":3,"d":0,"e":["Zr","S"],"bg":1.113,"cs":"monoclinic","sg":"P2_1/m","ns":8,"mp":"mp-9921","mu":{"Zr":-10.286,"S":-4.127},"dmu":{"Zr":-4.416,"S":-0.127}},{"m":"ZrSnPt","s":3,"d":0,"e":["Zr","Sn","Pt"],"bg":0.963,"cs":"cubic","sg":"F-43m","ns":3,"mp":"mp-961713","mu":{"Zr":-7.187,"Sn":-4.196,"Pt":-5.283},"dmu":{"Zr":-1.317,"Sn":-0.406,"Pt":-1.333}}];
 
-// ---- State ----
-let qry='', csfilt='', sortK='m', sortAsc=true, page=0, selRow=null, scatFilt='all', ptFilt='all';
+// ── Populate element filter ──
+const allEls=[...new Set(D.flatMap(r=>r.e))].sort();
+const elSel=document.getElementById('el-sel');
+allEls.forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;elSel.appendChild(o);});
+
+// ── State ──
+let qry='',csfilt='',elfilt='',sortK='m',sortAsc=true,page=0,sel=null,ptMode='all';
 const PER=15;
 
-// ---- Helpers ----
 function getFiltered(){
   return D.filter(r=>{
     if(csfilt&&r.cs!==csfilt)return false;
-    const q=qry.toLowerCase();
-    if(q&&!r.m.toLowerCase().includes(q)&&!r.e.some(e=>e.toLowerCase().includes(q)))return false;
+    if(elfilt&&!r.e.includes(elfilt))return false;
+    if(qry&&!r.m.toLowerCase().includes(qry.toLowerCase()))return false;
     return true;
   }).sort((a,b)=>{
-    let av=a[sortK]??'', bv=b[sortK]??'';
-    if(av===null||av===undefined)av='';
-    if(bv===null||bv===undefined)bv='';
-    if(typeof av==='number'&&typeof bv==='number')return sortAsc?av-bv:bv-av;
+    let av=a[sortK],bv=b[sortK];
+    if(av==null)av=sortAsc?Infinity:-Infinity;
+    if(bv==null)bv=sortAsc?Infinity:-Infinity;
+    if(typeof av==='number')return sortAsc?av-bv:bv-av;
     return sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));
   });
 }
 
-function cLabel(c){ return {t:'Tolerant',i:'Intolerant',f:'Fail',u:'Unknown'}[c]||c; }
-function cBadge(c){ return {t:'bt',i:'bi',f:'bf',u:'bu'}[c]||'bu'; }
-
-// ---- Browse ----
 function render(){
-  const data=getFiltered();
-  const tot=data.length, pages=Math.max(1,Math.ceil(tot/PER));
+  const data=getFiltered(),tot=data.length,pages=Math.max(1,Math.ceil(tot/PER));
   if(page>=pages)page=pages-1;
   const sl=data.slice(page*PER,(page+1)*PER);
-  const tb=document.getElementById('tbody');
-  tb.innerHTML=sl.map((r,i)=>{
-    const gi=page*PER+i;
-    const isSel=selRow&&selRow.m===r.m;
-    const mpCell=r.mp
-      ?`<a class="mp-link" href="https://next-gen.materialsproject.org/materials/${r.mp}" target="_blank">${r.mp}</a>`
-      :`<span class="no-mp">—</span>`;
-    const bg=r.bg!=null?r.bg:'—';
+  document.getElementById('result-ct').textContent=tot+' results';
+  document.getElementById('tbody').innerHTML=sl.map(r=>{
+    const isSel=sel&&sel.m===r.m;
+    const mpCell=r.mp?`<a class="mp-tag" href="https://next-gen.materialsproject.org/materials/${r.mp}" target="_blank">${r.mp}</a>`:`<span class="no-mp">—</span>`;
+    const cs=r.cs?r.cs[0].toUpperCase()+r.cs.slice(1):'—';
     return `<tr class="${isSel?'sel':''}" onclick='selectRow(${JSON.stringify(r)})'>
-      <td style="font-weight:500">${r.m}</td>
-      <td>${bg}</td>
-      <td style="font-size:11px;color:var(--txt2)">${r.cs||'—'}</td>
+      <td><span class="m-name">${r.m}</span></td>
+      <td><span class="eg-val">${r.bg??'—'}</span></td>
+      <td><span class="cs-val">${cs}</span></td>
+      <td><span class="no-mp">${r.ns||'—'}</span></td>
       <td>${mpCell}</td>
     </tr>`;
   }).join('');
-  document.getElementById('pginfo').textContent=`${page+1}/${pages}`;
-  document.getElementById('pgct').textContent=`${tot} results`;
+  document.getElementById('pginfo').textContent=`${page+1} / ${pages}`;
+  document.getElementById('pgct').textContent=`${tot} materials`;
   document.getElementById('bprev').disabled=page===0;
   document.getElementById('bnext').disabled=page>=pages-1;
 }
 
 function selectRow(r){
-  selRow=r;
-  render();
-  const mu=Object.keys(r.mu||{}).length
-    ?Object.entries(r.mu).map(([k,v])=>`${k}: ${v} eV`).join(' | '):'—';
-  const dmu=Object.keys(r.dmu||{}).length
-    ?Object.entries(r.dmu).map(([k,v])=>`${k}: ${v} eV`).join(' | '):'—';
-  const mpRow=r.mp
-    ?`<div class="kv"><span class="kk">MP ID</span>
-       <a class="mp-link kv-val" href="https://next-gen.materialsproject.org/materials/${r.mp}" target="_blank">
-       ${r.mp} ↗</a></div>`
-    :`<div class="kv"><span class="kk">MP ID</span>
-       <span class="kv-val no-mp">Not yet fetched (run fetch_mp_data_to_db.py)</span></div>`;
+  sel=r; render();
+  const mu=Object.entries(r.mu||{}).map(([k,v])=>`${k}: ${v}`).join('<br>');
+  const dmu=Object.entries(r.dmu||{}).map(([k,v])=>`${k}: ${v}`).join('<br>');
+  const mpBtn=r.mp
+    ?`<a class="mp-btn" href="https://next-gen.materialsproject.org/materials/${r.mp}" target="_blank">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6H10M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        View on Materials Project · ${r.mp}</a>`
+    :`<span style="font-size:11px;color:var(--ink3);font-style:italic;margin-bottom:16px;display:block">MP data not available</span>`;
   document.getElementById('detail').innerHTML=`
-    <div class="d-title">${r.m}</div>
-    <div class="d-sub">${r.sg||'—'} · ${r.cs||'—'} · ${r.ns||'—'} atoms/cell</div>
-
-    ${mpRow}
-    <div class="kv"><span class="kk">Band gap (GGA)</span><span class="kv-val">${r.bg!=null?r.bg+' eV':'—'}</span></div>
-    <div class="kv"><span class="kk">Space group</span><span class="kv-val">${r.sg||'—'}</span></div>
-    <div class="kv"><span class="kk">Crystal system</span><span class="kv-val">${r.cs||'—'}</span></div>
-    <div class="kv"><span class="kk">Sites / cell</span><span class="kv-val">${r.ns||'—'}</span></div>
-    <div class="kv"><span class="kk">Shallow defects</span><span class="kv-val">${r.s}</span></div>
-    <div class="kv"><span class="kk">Deep defects</span><span class="kv-val">${r.d}</span></div>
-    <div class="kv"><span class="kk">Elements</span><span class="kv-val">${r.e.join(', ')}</span></div>
-    <div class="kv"><span class="kk">μ_total (FERE)</span><span class="kv-val" style="font-size:10px">${mu}</span></div>
-    <div class="kv"><span class="kk">Δμ centroid</span><span class="kv-val" style="font-size:10px">${dmu}</span></div>
-  `;
+    <div class="d-formula">${r.m}</div>
+    <div class="d-sub">${r.sg||'—'} · ${r.cs||'—'} · ${r.ns||'—'} sites/cell</div>
+    ${mpBtn}
+    <div>
+      <div class="kv"><span class="kk">Band gap (GGA+U)</span><span class="kv-v accent">${r.bg??'—'} eV</span></div>
+      <div class="kv"><span class="kk">Space group</span><span class="kv-v">${r.sg||'—'}</span></div>
+      <div class="kv"><span class="kk">Crystal system</span><span class="kv-v">${r.cs?r.cs[0].toUpperCase()+r.cs.slice(1):'—'}</span></div>
+      <div class="kv"><span class="kk">Sites / cell</span><span class="kv-v">${r.ns||'—'}</span></div>
+      <div class="kv"><span class="kk">Shallow defects</span><span class="kv-v accent">${r.s}</span></div>
+      <div class="kv"><span class="kk">Deep defects</span><span class="kv-v" style="color:var(--green);font-family:'Inter',sans-serif;font-size:20px;font-weight:400">0</span></div>
+      <div class="kv"><span class="kk">Elements</span><span class="kv-v">${r.e.join(', ')}</span></div>
+      <div class="kv"><span class="kk">μ_total (FERE)</span><span class="kv-v" style="font-size:10px;line-height:1.9">${mu}</span></div>
+      <div class="kv"><span class="kk">Δμ centroid</span><span class="kv-v" style="font-size:10px;line-height:1.9">${dmu}</span></div>
+    </div>`;
 }
-
 
 function onQ(v){qry=v;page=0;render();}
 function pg(d){page+=d;render();}
-function srt(k){if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=true;}render();}
+function srt(k){sortK===k?sortAsc=!sortAsc:(sortK=k,sortAsc=true);render();}
 document.getElementById('cs-sel').addEventListener('change',function(){csfilt=this.value;page=0;render();});
+document.getElementById('el-sel').addEventListener('change',function(){elfilt=this.value;page=0;render();});
 
-// ---- Scatter ----
+// ── Element bars ──
+(function(){
+  const cnt={};D.forEach(r=>r.e.forEach(e=>cnt[e]=(cnt[e]||0)+1));
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const mx=top[0][1];
+  document.getElementById('el-bars').innerHTML=top.map(([e,n])=>`
+    <div class="bar-row">
+      <span class="bar-lbl">${e}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mx*100)}%"></div></div>
+      <span class="bar-n">${n}</span>
+    </div>`).join('');
+})();
 
-function drawScat(){
-  const c=document.getElementById('sc');
-  if(!c)return;
-  const W=c.offsetWidth||680, H=280;
-  c.width=W*devicePixelRatio; c.height=H*devicePixelRatio;
-  c.style.width=W+'px'; c.style.height=H+'px';
-  const ctx=c.getContext('2d');
-  ctx.scale(devicePixelRatio,devicePixelRatio);
-  const bgMin=parseFloat(document.getElementById('bg-min').value);
-  const bgMax=parseFloat(document.getElementById('bg-max').value);
-  document.getElementById('bg-min-v').textContent=bgMin.toFixed(1)+' eV';
-  document.getElementById('bg-max-v').textContent=bgMax.toFixed(1)+' eV';
-  const PAD={l:44,r:20,t:20,b:44};
-  const pw=W-PAD.l-PAD.r, ph=H-PAD.t-PAD.b;
-  // PV window shading
-  const x1=PAD.l+(1.1/3.5)*pw, x2=PAD.l+(1.8/3.5)*pw;
-  ctx.fillStyle='rgba(29,158,117,0.07)';
-  ctx.fillRect(x1,PAD.t,x2-x1,ph);
-  // Grid
-  ctx.strokeStyle='rgba(128,128,128,0.15)';ctx.lineWidth=0.5;
-  for(let g=0;g<=7;g++){const x=PAD.l+g/7*pw;ctx.beginPath();ctx.moveTo(x,PAD.t);ctx.lineTo(x,PAD.t+ph);ctx.stroke();}
-  for(let g=0;g<=3;g++){const y=PAD.t+g/3*ph;ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+pw,y);ctx.stroke();}
-  // Axes labels
-  ctx.fillStyle='#888';ctx.font=`10px sans-serif`;ctx.textAlign='center';
-  for(let g=0;g<=7;g++){const v=(g/7*3.5).toFixed(1);ctx.fillText(v,PAD.l+g/7*pw,H-PAD.b+14);}
-  ctx.textAlign='right';ctx.textBaseline='middle';
-  ['0','1','2','3'].forEach((v,i)=>{ctx.fillText(v,PAD.l-8,PAD.t+(1-i/3)*ph);});
-  ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  ctx.fillText('Band gap (eV)',PAD.l+pw/2,H-4);
-  // Dots
-  D.forEach(r=>{
-    if(r.bg==null||r.bg<bgMin||r.bg>bgMax)return;
-    if(scatFilt!=='all'&&r.c!==scatFilt)return;
-    const x=PAD.l+(r.bg/3.5)*pw;
-    const y=PAD.t+(1-r.s/3)*ph;
-    const col=r.c==='t'?'#1D9E75':r.c==='i'?'#D85A30':'#888780';
-    ctx.beginPath();ctx.arc(x,y,4.5,0,2*Math.PI);
-    ctx.fillStyle=col+'88';ctx.fill();
-    ctx.strokeStyle=col;ctx.lineWidth=0.8;ctx.stroke();
+// ── CS donut ──
+(function(){
+  const cnt={};D.forEach(r=>{if(r.cs)cnt[r.cs]=(cnt[r.cs]||0)+1;});
+  const items=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const total=items.reduce((s,[,n])=>s+n,0);
+  const COLS=['#1a8c68','#2655a8','#b8963c','#c94a2b','#7c5cad','#2a8cad','#6c8c1a'];
+  const c=document.getElementById('cs-donut'),ctx=c.getContext('2d');
+  let a=-Math.PI/2;
+  items.forEach(([,n],i)=>{
+    const sw=n/total*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(50,50);ctx.arc(50,50,44,a,a+sw);ctx.closePath();
+    ctx.fillStyle=COLS[i%COLS.length];ctx.fill();a+=sw;
   });
-  // PV window label
-  ctx.fillStyle='rgba(29,158,117,0.7)';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
-  ctx.fillText('PV window',( x1+x2)/2,PAD.t+4);
+  ctx.beginPath();ctx.arc(50,50,27,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();
+  document.getElementById('cs-legend').innerHTML=items.map(([cs,n],i)=>`
+    <div class="cs-item">
+      <div class="cs-dot" style="background:${COLS[i%COLS.length]}"></div>
+      <span style="text-transform:capitalize">${cs} (${n})</span>
+    </div>`).join('');
+})();
+
+// ── Scatter ──
+let hoveredMat=null;
+function drawScat(){
+  const c=document.getElementById('sc');if(!c)return;
+  const W=c.offsetWidth||760,H=320,DPR=devicePixelRatio||1;
+  c.width=W*DPR;c.height=H*DPR;c.style.width=W+'px';c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(DPR,DPR);
+  const bgMin=+document.getElementById('bgmin').value,bgMax=+document.getElementById('bgmax').value;
+  document.getElementById('bgminv').textContent=bgMin.toFixed(1);
+  document.getElementById('bgmaxv').textContent=bgMax.toFixed(1);
+  const P={l:48,r:28,t:28,b:48},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const xS=v=>P.l+(v-bgMin)/(bgMax-bgMin||1)*pw;
+  const yS=v=>P.t+(1-v/3)*ph;
+  // PV shading
+  ctx.fillStyle='rgba(26,140,104,0.08)';
+  ctx.fillRect(xS(1.1),P.t,xS(1.8)-xS(1.1),ph);
+  // Grid
+  ctx.strokeStyle='rgba(0,0,0,0.06)';ctx.lineWidth=.5;
+  for(let i=0;i<=8;i++){const x=P.l+i/8*pw;ctx.beginPath();ctx.moveTo(x,P.t);ctx.lineTo(x,P.t+ph);ctx.stroke();}
+  for(let i=0;i<=3;i++){const y=P.t+i/3*ph;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(P.l+pw,y);ctx.stroke();}
+  // PV window borders
+  ctx.strokeStyle='rgba(26,140,104,0.3)';ctx.setLineDash([4,4]);ctx.lineWidth=1;
+  [1.1,1.8].forEach(v=>{ctx.beginPath();ctx.moveTo(xS(v),P.t);ctx.lineTo(xS(v),P.t+ph);ctx.stroke();});
+  ctx.setLineDash([]);
+  // Labels
+  ctx.fillStyle='#8a8a80';ctx.font=`11px 'DM Mono',monospace`;
+  ctx.textAlign='center';ctx.textBaseline='top';
+  for(let i=0;i<=8;i++)ctx.fillText((bgMin+i/8*(bgMax-bgMin)).toFixed(1),P.l+i/8*pw,P.t+ph+8);
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  ['0','1','2','3'].forEach((v,i)=>ctx.fillText(v,P.l-8,P.t+(1-i/3)*ph));
+  ctx.fillStyle='rgba(26,140,104,0.55)';ctx.font=`10px 'Inter',sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText('Ideal PV window',(xS(1.1)+xS(1.8))/2,P.t-4);
+  ctx.fillStyle='#8a8a80';ctx.textBaseline='alphabetic';
+  ctx.fillText('Band gap (eV)',P.l+pw/2,H-4);
+  ctx.save();ctx.translate(14,P.t+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText('Shallow defects',0,0);ctx.restore();
+  // Dots
+  const vis=D.filter(r=>r.bg!=null&&r.bg>=bgMin&&r.bg<=bgMax);
+  vis.forEach(r=>{
+    const x=xS(r.bg),y=yS(r.s);
+    const isHov=hoveredMat===r.m;
+    ctx.beginPath();ctx.arc(x,y,isHov?7:5,0,2*Math.PI);
+    ctx.fillStyle=isHov?'rgba(26,140,104,0.9)':'rgba(26,140,104,0.55)';ctx.fill();
+    ctx.strokeStyle=isHov?'#0f6b50':'#1a8c68';ctx.lineWidth=isHov?1.5:1;ctx.stroke();
+    if(isHov){
+      ctx.fillStyle='#1a1a16';ctx.font=`bold 11px 'DM Mono',monospace`;
+      ctx.textAlign='center';ctx.textBaseline='bottom';
+      ctx.fillText(r.m,x,y-9);
+    }
+  });
 }
 
-// ---- Periodic Table ----
-// Periodic table: each element mapped to [row, col] (0-based, 18 cols × 6 rows)
-const PT_MAP = {
-  'H':[0,0],'He':[0,17],
-  'Li':[1,0],'Be':[1,1],'B':[1,12],'C':[1,13],'N':[1,14],'O':[1,15],'F':[1,16],'Ne':[1,17],
-  'Na':[2,0],'Mg':[2,1],'Al':[2,12],'Si':[2,13],'P':[2,14],'S':[2,15],'Cl':[2,16],'Ar':[2,17],
-  'K':[3,0],'Ca':[3,1],'Sc':[3,2],'Ti':[3,3],'V':[3,4],'Cr':[3,5],'Mn':[3,6],
-  'Fe':[3,7],'Co':[3,8],'Ni':[3,9],'Cu':[3,10],'Zn':[3,11],
-  'Ga':[3,12],'Ge':[3,13],'As':[3,14],'Se':[3,15],'Br':[3,16],'Kr':[3,17],
-  'Rb':[4,0],'Sr':[4,1],'Y':[4,2],'Zr':[4,3],'Nb':[4,4],'Mo':[4,5],'Tc':[4,6],
-  'Ru':[4,7],'Rh':[4,8],'Pd':[4,9],'Ag':[4,10],'Cd':[4,11],
-  'In':[4,12],'Sn':[4,13],'Sb':[4,14],'Te':[4,15],'I':[4,16],'Xe':[4,17],
-  'Cs':[5,0],'Ba':[5,1],'La':[5,2],'Hf':[5,3],'Ta':[5,4],'W':[5,5],'Re':[5,6],
-  'Os':[5,7],'Ir':[5,8],'Pt':[5,9],'Au':[5,10],'Hg':[5,11],
-  'Tl':[5,12],'Pb':[5,13],'Bi':[5,14],'Po':[5,15],'At':[5,16],'Rn':[5,17],
-};
+// Scatter hover
+document.getElementById('sc').addEventListener('mousemove',function(e){
+  const rect=this.getBoundingClientRect();
+  const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  const bgMin=+document.getElementById('bgmin').value,bgMax=+document.getElementById('bgmax').value;
+  const W=this.offsetWidth,H=320;
+  const P={l:48,r:28,t:28,b:48},pw=W-P.l-P.r,ph=H-P.t-P.b;
+  const xS=v=>P.l+(v-bgMin)/(bgMax-bgMin||1)*pw;
+  const yS=v=>P.t+(1-v/3)*ph;
+  let found=null;
+  D.filter(r=>r.bg!=null).forEach(r=>{
+    const dx=mx-xS(r.bg),dy=my-yS(r.s);
+    if(Math.sqrt(dx*dx+dy*dy)<8)found=r.m;
+  });
+  if(found!==hoveredMat){hoveredMat=found;drawScat();}
+});
+document.getElementById('sc').addEventListener('mouseleave',()=>{hoveredMat=null;drawScat();});
+
+// ── PT ──
+const PT_MAP={'H':[0,0],'He':[0,17],'Li':[1,0],'Be':[1,1],'B':[1,12],'C':[1,13],'N':[1,14],'O':[1,15],'F':[1,16],'Ne':[1,17],'Na':[2,0],'Mg':[2,1],'Al':[2,12],'Si':[2,13],'P':[2,14],'S':[2,15],'Cl':[2,16],'Ar':[2,17],'K':[3,0],'Ca':[3,1],'Sc':[3,2],'Ti':[3,3],'V':[3,4],'Cr':[3,5],'Mn':[3,6],'Fe':[3,7],'Co':[3,8],'Ni':[3,9],'Cu':[3,10],'Zn':[3,11],'Ga':[3,12],'Ge':[3,13],'As':[3,14],'Se':[3,15],'Br':[3,16],'Kr':[3,17],'Rb':[4,0],'Sr':[4,1],'Y':[4,2],'Zr':[4,3],'Nb':[4,4],'Mo':[4,5],'Tc':[4,6],'Ru':[4,7],'Rh':[4,8],'Pd':[4,9],'Ag':[4,10],'Cd':[4,11],'In':[4,12],'Sn':[4,13],'Sb':[4,14],'Te':[4,15],'I':[4,16],'Xe':[4,17],'Cs':[5,0],'Ba':[5,1],'La':[5,2],'Hf':[5,3],'Ta':[5,4],'W':[5,5],'Re':[5,6],'Os':[5,7],'Ir':[5,8],'Pt':[5,9],'Au':[5,10],'Hg':[5,11],'Tl':[5,12],'Pb':[5,13],'Bi':[5,14],'Po':[5,15],'At':[5,16],'Rn':[5,17]};
 function buildPT(){
-  const sub=ptFilt==='all'?D:ptFilt==='cs'?D.filter(r=>r.cs==='cubic'):D.filter(r=>r.e.includes('O'));
-  const tolEls=new Set(sub.flatMap(r=>r.e));
-  const intEls=new Set();
-  // Build 6×18 grid
-  const grid2d=Array.from({length:6},()=>new Array(18).fill(null));
-  Object.entries(PT_MAP).forEach(([sym,[r,c]])=>{ grid2d[r][c]=sym; });
+  const sub=ptMode==='all'?D:ptMode==='ox'?D.filter(r=>r.e.includes('O')):ptMode==='hal'?D.filter(r=>r.e.some(e=>['F','Cl','Br','I'].includes(e))):D.filter(r=>r.e.includes('S'));
+  const present=new Set(sub.flatMap(r=>r.e));
+  const grid=Array.from({length:6},()=>new Array(18).fill(null));
+  Object.entries(PT_MAP).forEach(([s,[r,c]])=>grid[r][c]=s);
   const cells=[];
-  for(let r=0;r<6;r++){
-    for(let c=0;c<18;c++){
-      const sym=grid2d[r][c];
-      if(!sym){cells.push(null);continue;}
-      let cls='absent';
-      const inT=tolEls.has(sym), inI=intEls.has(sym);
-      if(inT&&inI)cls='present-m';
-      else if(inT)cls='present-t';
-      else if(inI)cls='present-i';
-      cells.push({sym,cls});
-    }
-  }
-  document.getElementById('ptgrid').innerHTML=cells.map(c=>c
-    ?`<div class="pt-cell ${c.cls}" onclick="ptClick('${c.sym}')">${c.sym}</div>`
-    :`<div class="pt-cell empty"></div>`
-  ).join('');
+  for(let r=0;r<6;r++)for(let c=0;c<18;c++){const s=grid[r][c];cells.push(s?{s,cls:present.has(s)?'present':'absent'}:null);}
+  document.getElementById('ptgrid').innerHTML=cells.map(c=>c?`<div class="pt-cell ${c.cls}" onclick="ptClick('${c.s}')">${c.s}</div>`:`<div class="pt-cell empty"></div>`).join('');
 }
 function ptClick(el){
   const ms=D.filter(r=>r.e.includes(el));
-  const t=ms.filter(r=>r.c==='t').length, ii=ms.filter(r=>r.c==='i').length;
-  document.getElementById('pt-info').textContent=
-    `${el}: ${ms.length} materials in database (${t} tolerant, ${ii} intolerant)`;
+  const examples=ms.slice(0,6).map(r=>r.m).join(', ');
+  document.getElementById('pt-info').textContent=`${el} — ${ms.length} tolerant materials: ${examples}${ms.length>6?` (+${ms.length-6} more)`:''}`;
 }
-function setPt(f,btn){ptFilt=f;document.querySelectorAll('#pane-ptable .pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildPT();}
+function setPt(f,btn){ptMode=f;document.querySelectorAll('#pane-ptable .pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildPT();}
 
 function switchTab(id,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
-  ['browse','scatter','ptable'].forEach(p=>{document.getElementById('pane-'+p).style.display=p===id?'block':'none';});
+  ['browse','scatter','ptable'].forEach(p=>document.getElementById('pane-'+p).style.display=p===id?'block':'none');
   if(id==='scatter')setTimeout(drawScat,50);
   if(id==='ptable')buildPT();
 }
+window.addEventListener('resize',()=>{if(document.getElementById('pane-scatter').style.display!=='none')drawScat();});
 
 render();
-window.addEventListener('resize',()=>{if(document.getElementById('pane-scatter').style.display!=='none')drawScat();});
 </script>
 </body>
 </html>
